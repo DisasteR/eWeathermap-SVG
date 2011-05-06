@@ -1,5 +1,12 @@
+eWeatherMap-SVG is a enhanced version of WeatherMap-SVG
 
-WeatherMap-SVG require
+new features are :
+
+ * Manage different IN and OUT bandwith
+ * Create Simple Links Between Nodes
+
+
+eWeatherMap-SVG require
 	+ requirements
 	|--+ Perl modules
 	|  |-> Getopt::Long (http://search.cpan.org/dist/Getopt-Long/lib/Getopt/Long.pm)
@@ -9,5 +16,3 @@ WeatherMap-SVG require
 	|  `-> SVG (http://search.cpan.org/~ronan/SVG-2.49/lib/SVG/Manual.pm)
 	`--+ External programs
 	   `-> Libxml for DTD check with --checkconfig (http://xmlsoft.org/) (xmllint)
-
-READ WIKI at http://wiki.polymorf.fr/index.php/WeatherMap-SVG
