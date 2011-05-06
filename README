@@ -19,4 +19,4 @@ eWeatherMap-SVG require
 	   `-> Libxml for DTD check with --checkconfig (http://xmlsoft.org/) (xmllint)
 	   `-> wget for use with MRTG (mandatory even if no links are created from MRTG)
 
-Under Debian 6.0, install the following packages (also works for Debian 5.0 and Ubuntu) : wget librrds-perl libxml2-utils libgetopt-long-descriptive-perl libxml-parser-perl libxml-simpleobject-perl libsvg-perl libxml2-utils libxml-simpleobject-perl libxml-parser-lite-tree-perl
+Under Debian 6.0, install the following packages (also works for Debian 5.0 and Ubuntu) : wget librrds-perl libgetopt-long-descriptive-perl libxml-parser-perl libxml-simpleobject-perl libsvg-perl libxml2-utils libxml-simpleobject-perl libxml-parser-lite-tree-perl
