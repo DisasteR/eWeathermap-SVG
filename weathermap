@@ -743,6 +743,7 @@ sub drawLogo() {
 	     target => 'new_window'
 	     );
 
+	 #left part of the W
 	 my $xv = [0+$x, 30+$x, 70+$x, 60+$x, 30+$x,  10+$x];
 	 my $yv = [0+$y, 30+$y, 0+$y,  0+$y,  25+$y,  0+$y];
 
@@ -753,7 +754,8 @@ sub drawLogo() {
 	 $link1->polygon(
         		%$points2,
 		  	style=>{'fill'=>'#ff0000','stroke'=>'#000000'});
-
+    
+    #right part of the W
     $xv = [40+$x, 70+$x, 110+$x, 100+$x, 70+$x,  50+$x];
     $yv = [0+$y, 30+$y, 0+$y,  0+$y,  25+$y,  0+$y];
 
@@ -766,8 +768,11 @@ sub drawLogo() {
     	style=>{'fill'=>'#00ff00','stroke'=>'#000000'}
     	);
 
+    #circles on side of the arrow
     $link1->circle(cx=>35+$x, cy=>5+$y, r=>5);
     $link1->circle(cx=>75+$x, cy=>5+$y, r=>5);
+
+    #pink arrow
     $xv = [40+$x, 55+$x, 55+$x, 73+$x,55+$x,  55+$x, 40+$x];
     $yv = [8+$y,  8+$y,  10+$y, 5+$y, 0+$y,  2+$y,  2+$y];
 
@@ -779,6 +784,28 @@ sub drawLogo() {
     	%$points1,
 	style=>{'fill'=>'#ff00ff','stroke'=>'#000000'}
 	);
+
+    #"e"
+    $xv = [0+$x, 110+$x, 110+$x, 0+$x];
+    $yv = [30+$y,  30+$y,  35+$y, 35+$y];
+
+    my $text_e = $svg->text(
+        x=>$xv, y=>$yv,
+        style=>{'font-family'=>'monospace','fill'=>'#0000DD','font-style'=>'italic'},
+        "font-size"=>"25"
+        )->cdata("e");
+    
+    #"SVG"
+    $xv = [85+$x, 110+$x, 110+$x, 85+$x];
+    $yv = [30+$y,  30+$y,  35+$y, 35+$y];
+
+    my $text_svg = $svg->text(
+        x=>$xv, y=>$yv,
+        style=>{'font-family'=>'monospace','fill'=>'#0000DD','font-style'=>'italic'},
+        "font-size"=>"15"
+        )->cdata("SVG");
+
+    #black line under the logo
     $xv = [0+$x, 110+$x, 110+$x, 0+$x];
     $yv = [35+$y,  35+$y,  38+$y, 38+$y];
 
