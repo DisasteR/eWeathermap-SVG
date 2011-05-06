@@ -15,12 +15,13 @@ use SVG;
 # Configuration parameters
 #
 chomp($RRDTOOL_PATH = `/usr/bin/dirname \$(/usr/bin/which rrdtool) 2> /dev/null || echo "__ERROR__"`);
-if ( $RRDTOOL_PATH == "__ERROR__" ) {
+if ( $RRDTOOL_PATH eq "__ERROR__" ) {
 	print "rrdtool not found on the system, exiting\n";
 	exit(2);
 }
+$RRDTOOL_PATH = "$RRDTOOL_PATH/";
 chomp($WGET = `/usr/bin/which wget || echo "__ERROR__"`);
-if ( $WGET == "__ERROR__" ) {
+if ( $WGET eq "__ERROR__" ) {
 	print "wget not found on the system, exiting\n";
 	exit(2);
 }
@@ -302,7 +303,7 @@ sub title{
     $t=localtime(time);
     $update_text="Last update on $t";
     my $rect_size_x=0;
-    $title_text="$title_text - WeatherMapSVG $VERSION";
+    $title_text="$title_text - eWeatherMapSVG $VERSION";
     if ( length($update_text) > length($title_text) ) {
 	$rect_size_x=8*length($update_text)+130;
     }else{
@@ -541,7 +542,7 @@ sub read_config {
 	    }else{
 		#Default value
 		$link_width = 7;
-	    }
+	    }
 
 	    $linkWidth{$link}=$link_width;
 
