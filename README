@@ -2,9 +2,9 @@ eWeatherMap-SVG is a enhanced version of WeatherMap-SVG (http://sourceforge.net/
 
 new features are :
 
- * Manage different IN and OUT bandwith
- * Create Simple Links Between Nodes
- * Chose the width of Links Between Nodes
+ * Manage different IN and OUT bandwidth
+ * Create simple links between nodes
+ * Choose the width of links between nodes
 
 
 eWeatherMap-SVG require
