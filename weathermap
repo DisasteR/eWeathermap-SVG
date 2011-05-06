@@ -305,9 +305,9 @@ sub title{
     my $rect_size_x=0;
     $title_text="$title_text - eWeathermap-SVG $VERSION";
     if ( length($update_text) > length($title_text) ) {
-	$rect_size_x=8*length($update_text)+130;
+	$rect_size_x=8*length($update_text)+160;
     }else{
-	$rect_size_x=8*length($title_text)+130;
+	$rect_size_x=8*length($title_text)+160;
     }
     $svg->rectangle(
 	x     => $title_pos_x,
@@ -318,26 +318,26 @@ sub title{
 	style=>{'fill'=>'#ffffff','stroke'=>'#000000'}
 	);
     $svg->text(
-	 x=>$title_pos_x+124,
+	 x=>$title_pos_x+154,
 	 y=>$title_pos_y+20,
 	 style=>{'font-family'=>'monospace','fill'=>'#660000','font-weight'=>'bold'}
          )->cdata($title_text);
     $svg->line(
-	x1=>$title_pos_x+120,
+	x1=>$title_pos_x+150,
 	y1=>$title_pos_y+30,
 	x2=>$title_pos_x+$rect_size_x,
 	y2=>$title_pos_y+30,
 	style=>{'fill'=>'#ffffff','stroke'=>'#000000'}
     );
     $svg->line(
-	x1=>$title_pos_x+120,
+	x1=>$title_pos_x+150,
 	y1=>$title_pos_y,
-	x2=>$title_pos_x+120,
+	x2=>$title_pos_x+150,
 	y2=>$title_pos_y+16*3+10,
 	style=>{'fill'=>'#ffffff','stroke'=>'#000000'}
     );
     $svg->text(
-	x=>$title_pos_x+124,
+	x=>$title_pos_x+154,
 	y=>$title_pos_y+50,
 	style=>{'font-family'=>'monospace','fill'=>'#000066','font-weight'=>'bold'}
     )->cdata($update_text);
@@ -738,6 +738,8 @@ sub drawLogo() {
 	 my $x = shift;
 	 my $y = shift;
 
+	 $x=$x+15;
+
 	 my $link1=$svg->anchor(
 	     -href=> 'https://github.com/DisasteR/eWeathermap-SVG',
 	     target => 'new_window'
@@ -786,8 +788,8 @@ sub drawLogo() {
 	);
 
     #"e"
-    $xv = [0+$x, 110+$x, 110+$x, 0+$x];
-    $yv = [30+$y,  30+$y,  35+$y, 35+$y];
+    $xv = [0+$x];
+    $yv = [30+$y];
 
     my $text_e = $svg->text(
         x=>$xv, y=>$yv,
@@ -796,8 +798,8 @@ sub drawLogo() {
         )->cdata("e");
     
     #"SVG"
-    $xv = [85+$x, 110+$x, 110+$x, 85+$x];
-    $yv = [30+$y,  30+$y,  35+$y, 35+$y];
+    $xv = [85+$x];
+    $yv = [30+$y];
 
     my $text_svg = $svg->text(
         x=>$xv, y=>$yv,
@@ -806,7 +808,7 @@ sub drawLogo() {
         )->cdata("SVG");
 
     #black line under the logo
-    $xv = [0+$x, 110+$x, 110+$x, 0+$x];
+    $xv = [-15+$x, 15+110+$x, 15+110+$x, -15+$x];
     $yv = [35+$y,  35+$y,  38+$y, 38+$y];
 
     my $points4 = $svg->get_path(
@@ -818,7 +820,7 @@ sub drawLogo() {
 	style=>{'fill'=>'#000000','stroke'=>'#000000'}
 	);
     $link1->text(
-	x=>2+$x,
+	x=>-5+$x,
 	y=>50+$y,
 	style=>{'font-family'=>'monospace','fill'=>'#000000','font-weight'=>'bold'}
 	)->cdata("eWeathermap-SVG");
