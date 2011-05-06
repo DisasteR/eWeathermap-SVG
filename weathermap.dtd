@@ -34,7 +34,7 @@
 	 <!ELEMENT label (#PCDATA)>
 
 	 <!ELEMENT links (link+)>
-	 <!ELEMENT link (members, target?, targetin?, targetout?, bandwidth?, bandwidthin?, bandwidthout)>
+	 <!ELEMENT link (members, target?, targetin?, targetout?, bandwidth?, bandwidthin?, bandwidthout?, width?)>
 	 <!ATTLIST link
 	 		name ID #REQUIRED
 			type (mrtg | rrd) #REQUIRED>
@@ -55,6 +55,8 @@
 	 <!ELEMENT bandwidth (#PCDATA)>
 	 <!ELEMENT bandwidthin (#PCDATA)>
 	 <!ELEMENT bandwidthout (#PCDATA)>
+	
+	 <!ELEMENT width (#PCDATA)>
 
 	 <!ELEMENT comments (comment*)>
 	 <!ELEMENT comment (text, position)>

@@ -1,10 +1,9 @@
 #!/usr/bin/perl
-# Network Wearthermap-SVG - version 0.3
-# http://sourceforge.net/projects/weathermap-svg/
-# David BERARD, <david@nfrance.com>
-# Based on http://netmon.grnet.gr/weathermap/ by Panagiotis Christias
+# Enhanced Network Wearthermap-SVG (eWeathermap-SVG) - version 0.1
+# https://github.com/DisasteR/eWeathermap-SVG
+# Based on http://sourceforge.net/projects/weathermap-svg/ by David BERARD
 
-$VERSION = "0.3";
+$VERSION = "0.1";
 
 use Getopt::Long;
 use XML::Parser;
@@ -15,8 +14,17 @@ use SVG;
 #
 # Configuration parameters
 #
-$RRDTOOL_PATH = "/usr/bin";
-$WGET   = "/usr/local/bin/wget -qO -";
+chomp($RRDTOOL_PATH = `/usr/bin/dirname \$(/usr/bin/which rrdtool) 2> /dev/null || echo "__ERROR__"`);
+if ( $RRDTOOL_PATH == "__ERROR__" ) {
+	print "rrdtool not found on the system, exiting\n";
+	exit(2);
+}
+chomp($WGET = `/usr/bin/which wget || echo "__ERROR__"`);
+if ( $WGET == "__ERROR__" ) {
+	print "wget not found on the system, exiting\n";
+	exit(2);
+}
+$WGET   = "$WGET -qO -";
 $CONFIG = "./weathermap.xml";
 $OUTPUT = "./weathermap.svg";
 $DEBUG  = 0;
@@ -160,7 +168,7 @@ foreach $link (keys %linkType){
     if($output{$link} != 0 && $outrate == 0) { $outrate=1 }
     if($input{$link} != 0 && $inrate == 0) { $inrate=1 }
     print "$link: outrate=$outrate%, inrate=$inrate%\n" if($DEBUG);
-    $width=7;
+    $width=$linkWidth{$link};
 
     if ($url{$link}) {
 	$svg_element = $svg->anchor(
@@ -527,6 +535,15 @@ sub read_config {
 		$bandwidthout{$link}=$link_bandwidthout;
 		$maxbytesout{$link}=$bandwidthout{$link}*1024/8;
 	    }
+
+	    if ( $link_node->child('width') ) {
+		$link_width = $link_node->child('width')->value;
+	    }else{
+		#Default value
+		$link_width = 7;
+	    }
+
+	    $linkWidth{$link}=$link_width;
 
 	    $linkType{$link}=$link_target_type;
 	    if( $link_node->child('url') ) {

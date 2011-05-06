@@ -157,6 +157,7 @@
       <targetout href="/var/lib/munin/********/****.********-if_eth0-down-c.rrd" coef="1"/>
       <bandwidthin>100000</bandwidthin>
       <bandwidthout>100000</bandwidthout>
+      <width>4</width>
     </link>
   </links>
   <comments>
