@@ -1,5 +1,5 @@
 #!/usr/bin/perl
-# Enhanced Network Wearthermap-SVG (eWeathermap-SVG) - version 0.1
+# Enhanced Network Weathermap-SVG (eWeathermap-SVG) - version 0.1
 # https://github.com/DisasteR/eWeathermap-SVG
 # Based on http://sourceforge.net/projects/weathermap-svg/ by David BERARD
 
@@ -59,7 +59,7 @@ my $svg= SVG->new(	width=>"100%",
 			viewBox=>"0 0 $WIDTH $HEIGHT",
 			preserveAspectRatio=>'xMinYMin'
     );
-$svg->title(id=>'document-title')->cdata('Weathermap-SVG');
+$svg->title(id=>'document-title')->cdata('eWeathermap-SVG');
 
 &title;
 &images;
@@ -303,7 +303,7 @@ sub title{
     $t=localtime(time);
     $update_text="Last update on $t";
     my $rect_size_x=0;
-    $title_text="$title_text - eWeatherMapSVG $VERSION";
+    $title_text="$title_text - eWeathermap-SVG $VERSION";
     if ( length($update_text) > length($title_text) ) {
 	$rect_size_x=8*length($update_text)+130;
     }else{
@@ -739,7 +739,7 @@ sub drawLogo() {
 	 my $y = shift;
 
 	 my $link1=$svg->anchor(
-	     -href=> 'https://sourceforge.net/projects/weathermap-svg/',
+	     -href=> 'https://github.com/DisasteR/eWeathermap-SVG',
 	     target => 'new_window'
 	     );
 
@@ -794,7 +794,7 @@ sub drawLogo() {
 	x=>2+$x,
 	y=>50+$y,
 	style=>{'font-family'=>'monospace','fill'=>'#000000','font-weight'=>'bold'}
-	)->cdata("WeathermapSVG");
+	)->cdata("eWeathermap-SVG");
 }
 
 sub checkconfig {
@@ -807,12 +807,12 @@ sub checkconfig {
 }
 
 sub version {
-    print "Wearthermap-SVG v$VERSION - http://sourceforge.net/projects/weathermap-svg/\n";
+    print "eWearthermap-SVG v$VERSION - https://github.com/DisasteR/eWeathermap-SVG\n";
 }
 
 sub usage {
     print <<EOM;
-    Wearthermap-SVG v$VERSION - http://sourceforge.net/projects/weathermap-svg/
+    eWeathermap-SVG v$VERSION - https://github.com/DisasteR/eWeathermap-SVG
       Usage: $0 [OPTION]...
 
       -c, --config=FILE  configuration file (default $CONFIG)
