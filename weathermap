@@ -542,9 +542,11 @@ sub read_config {
 	    }
 
 	    if ( $link_node->child('bandwidth') ) {
-		print "[[1;32m$link_name[0m] ( [31m$link_mb_bandwidth Mbit/s[0m ) $link_members target[$link_target_type] = " if($DEBUG);
+		print "[[1;32m$link_name[0m] ( [31m$link_mb_bandwidth Mbit/s[0m ) $link_members " if($DEBUG);
 	    } elsif ( $link_node->child('bandwidthin') && $link_node->child('bandwidthout') ) {
-		print "[[1;32m$link_name[0m] ( [31m $link_mb_bandwidthin Mbit/s / $link_mb_bandwidthout Mbit/s [0m ) $link_members target[$link_target_type] = " if($DEBUG);
+		print "[[1;32m$link_name[0m] ( [31m $link_mb_bandwidthin Mbit/s / $link_mb_bandwidthout Mbit/s [0m ) $link_members " if($DEBUG);
+	    } else {
+		print "[[1;32m$link_name[0m] $link_members " if($DEBUG);
 	    }
 
 	    if ( $link_node->child('target') ) {
@@ -556,7 +558,7 @@ sub read_config {
 		}
 		$target{$link}=$link_target_url;
 
-		print "$link_target_url\n" if($DEBUG);
+		print "$link_members target[$link_target_type] = $link_target_url\n" if($DEBUG);
 	    }else {
 		if ( $link_node->child('targetin') && $link_node->child('targetout') ) {
 		    my $link_targetin		= $link_node->child('targetin');
@@ -573,12 +575,13 @@ sub read_config {
 		    }
 		    $targetin{$link}=$link_targetin_url;
 		    $targetout{$link}=$link_targetout_url;
-		    print "$link_targetin_url && $link_targetout_url\n" if($DEBUG);
+		    print "$link_members target[$link_target_type] = $link_targetin_url && $link_targetout_url\n" if($DEBUG);
 		}
 		#else{
 		#	  die("error no taget, and targetin && targetout are not set on link $link");
 		#}
 	    }
+	    print "\n" if($DEBUG);
 	}
     }
 
