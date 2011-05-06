@@ -155,8 +155,8 @@
       </members>
       <targetin href="/var/lib/munin/********/****.********-if_eth0-up-c.rrd" coef="1"/>
       <targetout href="/var/lib/munin/********/****.********-if_eth0-down-c.rrd" coef="1"/>
-      <bandwidthin>100000</bandwidth>
-      <bandwidthout>100000</bandwidth>
+      <bandwidthin>100000</bandwidthin>
+      <bandwidthout>100000</bandwidthout>
     </link>
   </links>
   <comments>
