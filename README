@@ -1,9 +1,10 @@
-eWeatherMap-SVG is a enhanced version of WeatherMap-SVG
+eWeatherMap-SVG is a enhanced version of WeatherMap-SVG (http://sourceforge.net/projects/weathermap-svg/)
 
 new features are :
 
  * Manage different IN and OUT bandwith
  * Create Simple Links Between Nodes
+ * Chose the width of Links Between Nodes
 
 
 eWeatherMap-SVG require
@@ -16,3 +17,5 @@ eWeatherMap-SVG require
 	|  `-> SVG (http://search.cpan.org/~ronan/SVG-2.49/lib/SVG/Manual.pm)
 	`--+ External programs
 	   `-> Libxml for DTD check with --checkconfig (http://xmlsoft.org/) (xmllint)
+
+Under Debian Stable (6.0), install the following packages : libgetopt-long-descriptive-perl libxml-parser-perl libxml-simpleobject-perl libsvg-perl libxml2-utils libxml-simpleobject-perl libxml-parser-lite-tree-perl
