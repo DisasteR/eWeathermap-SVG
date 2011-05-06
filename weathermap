@@ -14,12 +14,6 @@ use SVG;
 #
 # Configuration parameters
 #
-chomp($RRDTOOL_PATH = `/usr/bin/dirname \$(/usr/bin/which rrdtool) 2> /dev/null || echo "__ERROR__"`);
-if ( $RRDTOOL_PATH eq "__ERROR__" ) {
-	print "rrdtool not found on the system, exiting\n";
-	exit(2);
-}
-$RRDTOOL_PATH = "$RRDTOOL_PATH/";
 chomp($WGET = `/usr/bin/which wget || echo "__ERROR__"`);
 if ( $WGET eq "__ERROR__" ) {
 	print "wget not found on the system, exiting\n";
@@ -83,11 +77,9 @@ sub getRRD($$) {
     my $data=shift;
 
     use RRDs;
-    $version=&rrdtool_getversion();
 
     if ( ! $DATE ) {
 	$DATE= RRDs::last "$data";
-	$version=&rrdtool_getversion();
 	$DATE= $DATE-300;
     }
     my ($start,$step,$names,$data) = RRDs::fetch "$data","AVERAGE","--start","$DATE","--end","$DATE";
@@ -99,11 +91,6 @@ sub getRRD($$) {
 	}
     }
     return 0;
-}
-sub rrdtool_getversion() {
-    $version=`$RRDTOOL_PATH/rrdtool | grep tobi\@oetiker.ch |cut -d" " -f2`;
-    ($major, $majorsub, $minorsub)= split(/\./, $version);
-    return ($major.".".$majorsub);
 }
 
 print "Opening log files...\n\n" if($DEBUG);
