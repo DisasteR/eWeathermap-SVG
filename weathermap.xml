@@ -1,0 +1,181 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE weathermap SYSTEM "weathermap.dtd">
+<!-- Example file for 0.3 -->
+<weathermap>
+  <global>
+    <scales_position x="1" y="1" />
+    <title x="150" y="10">My Example</title>
+    <size x="600" y="800" />
+  </global>
+  <scales>
+    <scale>
+      <low>0</low>
+      <high>1</high>
+      <color red="255" green="255" blue="255" />
+    </scale>
+    <scale>
+      <low>1</low>
+      <high>3</high>
+      <color red="230" green="255" blue="230" />
+    </scale>
+    <scale>
+      <low>3</low>
+      <high>6</high>
+      <color red="200" green="255" blue="200" />
+    </scale>
+    <scale>
+      <low>6</low>
+      <high>9</high>
+      <color red="160" green="255" blue="160" />
+    </scale>
+    <scale>
+      <low>9</low>
+      <high>12</high>
+      <color red="200" green="150" blue="255" />
+    </scale>
+    <scale>
+      <low>12</low>
+      <high>15</high>
+      <color red="190" green="100" blue="255" />
+    </scale>
+    <scale>
+      <low>15</low>
+      <high>18</high>
+      <color red="185" green="50" blue="255" />
+    </scale>
+    <scale>
+      <low>18</low>
+      <high>21</high>
+      <color red="130" green="0" blue="255" />
+    </scale>
+    <scale>
+      <low>21</low>
+      <high>23</high>
+      <color red="10" green="10" blue="255" />
+    </scale>
+    <scale>
+      <low>23</low>
+      <high>25</high>
+      <color red="0" green="130" blue="255" />
+    </scale>
+    <scale>
+      <low>25</low>
+      <high>40</high>
+      <color red="0" green="192" blue="255" />
+    </scale>
+    <scale>
+      <low>40</low>
+      <high>55</high>
+      <color red="0" green="240" blue="0" />
+    </scale>
+    <scale>
+      <low>55</low>
+      <high>70</high>
+      <color red="240" green="240" blue="0" />
+    </scale>
+    <scale>
+      <low>70</low>
+      <high>85</high>
+      <color red="255" green="150" blue="0" />
+    </scale>
+    <scale>
+      <low>85</low>
+      <high>100</high>
+      <color red="255" green="0" blue="0" />
+    </scale>
+    <scale>
+      <low>100</low>
+      <high>999</high>
+      <color red="170" green="0" blue="0" />
+    </scale>
+  </scales>
+  <nodes>
+    <node name="node_a">
+      <position x="200" y="400" />
+      <label>MyFirstNode</label>
+    </node>
+    <node name="node_b">
+      <position x="500" y="400" />
+      <label>SecondNode</label>
+    </node>
+    <node name="node_c">
+      <position x="350" y="600" />
+      <label>3stNode</label>
+    </node>
+    <node name="node_sw_port1">
+      <position x="250" y="288" />
+      <label>#1</label>
+    </node>
+    <node name="node_sw_port2">
+      <position x="450" y="288" />
+      <label>#2</label>
+    </node>
+  </nodes>
+  <links>
+    <!--MRTG HTML EXAMPLE-->
+    <link name="link_a_b" type="mrtg">
+      <members>
+	<member>node_a</member>
+	<member>node_b</member>
+      </members>
+      <target href="/home/********.html"/>
+      <bandwidth>100000</bandwidth>
+      <url>http://**********/mrtg/link_graph.png</url>
+    </link>
+    <link name="link_sw1_a" type="mrtg">
+      <members>
+	<member>node_sw_port1</member>
+	<member>node_a</member>
+      </members>
+      <target href="/home/********.html"/>
+      <bandwidth>100000</bandwidth>
+    </link>
+    <link name="link_sw2_b" type="mrtg">
+      <members>
+	<member>node_sw_port2</member>
+	<member>node_b</member>
+      </members>
+      <target href="/home/********.html"/>
+      <bandwidth>100000</bandwidth>
+    </link>
+    <!--MRTG RRD EXAMPLE-->
+    <link name="link_b_c" type="rrd">
+      <members>
+	<member>node_b</member>
+	<member>node_c</member>
+      </members>
+      <target href="/home/********.rrd"/>
+      <bandwidth>100000</bandwidth>
+    </link>
+    <!--CACTI EXAMPLE-->
+    <link name="link_c_a" type="rrd">
+      <members>
+	<member>node_c</member>
+	<member>node_a</member>
+      </members>
+      <targetin href="/var/lib/munin/********/****.********-if_eth0-up-c.rrd" coef="1"/>
+      <targetout href="/var/lib/munin/********/****.********-if_eth0-down-c.rrd" coef="1"/>
+      <bandwidthin>100000</bandwidth>
+      <bandwidthout>100000</bandwidth>
+    </link>
+  </links>
+  <comments>
+    <comment name="c_speed_a_b">
+      <text>100Mbit/s</text>
+      <position x="320" y="380" />
+    </comment>
+  </comments>
+  <objects>
+    <object name="obj_sw_core">
+      <label>SW_CORE</label>
+      <position x="200" y="180" />
+      <size x="300" y="100" />
+    </object>
+  </objects>
+  <images>
+    <image name="img_nfrance" href="http://********/img/cloud.png" type="png">
+      <position x="210" y="560" />
+      <size x="300" y="100" />
+    </image>
+  </images>
+</weathermap>

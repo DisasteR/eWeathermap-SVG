@@ -1,0 +1,73 @@
+<?xml version='1.0' encoding='ISO-8859-1' ?>
+	 <!ELEMENT weathermap (global, scales, nodes, links, comments?, objects?, images?)>
+	 <!ELEMENT global (scales_position, title, size)>
+	 <!ELEMENT title (#PCDATA)>
+	 <!ATTLIST title
+	 		x NMTOKEN #REQUIRED
+	 		y NMTOKEN #REQUIRED>
+	 <!ELEMENT scales_position EMPTY>
+	 <!ATTLIST scales_position
+	 		x NMTOKEN #REQUIRED
+	 		y NMTOKEN #REQUIRED>
+	 <!ELEMENT position EMPTY>
+	 <!ATTLIST position
+	 		x NMTOKEN #REQUIRED
+	 		y NMTOKEN #REQUIRED>
+	 <!ELEMENT size EMPTY>
+	 <!ATTLIST size
+	 		x NMTOKEN #REQUIRED
+	 		y NMTOKEN #REQUIRED>
+
+	 <!ELEMENT scales (scale+)>
+	 <!ELEMENT scale (low, high, color)>
+	 <!ELEMENT low (#PCDATA)>
+	 <!ELEMENT high (#PCDATA)>
+	 <!ELEMENT color EMPTY>
+	 <!ATTLIST color
+	 		red NMTOKEN #REQUIRED
+	 		green NMTOKEN #REQUIRED
+	 		blue NMTOKEN #REQUIRED>
+
+	 <!ELEMENT nodes (node+)>
+	 <!ELEMENT node (position, label)>
+	 <!ATTLIST node name ID #REQUIRED>
+	 <!ELEMENT label (#PCDATA)>
+
+	 <!ELEMENT links (link+)>
+	 <!ELEMENT link (members, target?, targetin?, targetout?, bandwidth?, bandwidthin?, bandwidthout)>
+	 <!ATTLIST link
+	 		name ID #REQUIRED
+			type (mrtg | rrd) #REQUIRED>
+	 <!ELEMENT members (member+)>
+	 <!ELEMENT member (#PCDATA)>
+	 <!ELEMENT target EMPTY>
+	 <!ATTLIST target
+	 		coef CDATA #IMPLIED
+	 		href CDATA #REQUIRED>
+	 <!ELEMENT targetin EMPTY>
+	 <!ATTLIST targetin
+	 		coef CDATA #IMPLIED
+	 		href CDATA #REQUIRED>
+	 <!ELEMENT targetout EMPTY>
+	 <!ATTLIST targetout
+	 		coef CDATA #IMPLIED
+	 		href CDATA #REQUIRED>
+	 <!ELEMENT bandwidth (#PCDATA)>
+	 <!ELEMENT bandwidthin (#PCDATA)>
+	 <!ELEMENT bandwidthout (#PCDATA)>
+
+	 <!ELEMENT comments (comment*)>
+	 <!ELEMENT comment (text, position)>
+	 <!ATTLIST comment name ID #REQUIRED>
+	 <!ELEMENT text (#PCDATA)>
+
+	 <!ELEMENT objects (object*)>
+	 <!ELEMENT object (label, position, size)>
+	 <!ATTLIST object name ID #REQUIRED>
+
+	 <!ELEMENT images (image*)>
+	 <!ELEMENT image (position, size)>
+	 <!ATTLIST image
+	 		name ID #REQUIRED
+	 		href CDATA #REQUIRED
+	 		type (png | jpg) #REQUIRED>
