@@ -5,10 +5,10 @@ new features are :
  * Manage different IN and OUT bandwidth
  * Create simple links between nodes
  * Choose the width of links between nodes
+ * Create a new line type called "demo", in order to be able to create demo graphs more easily
 
 TODO : 
-
- * Create a new line type called "demo", in order to be able to create demo graphs more easily
+ * Nothing for the moment, feel free to ask :).
 
 eWeatherMap-SVG require
 	+ requirements
