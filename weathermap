@@ -127,12 +127,20 @@ foreach $link (keys %linkType){
 	    if(defined($targetout_coef{$link})) {
 		$coef_out=$targetout_coef{$link};
 	    }
-	    print "FILE_in($type) : $datain\n" if($DEBUG);
-	    print "FILE_out($type) : $dataout\n" if($DEBUG);
-	    $input{$link}=int(getRRD(0,$datain)*$coef_in);
-	    $output{$link}=int(getRRD(0,$dataout)*$coef_out);
-	    print "LINK: $link, Input: $input{$link}\n" if($DEBUG);
-	    print "LINK: $link, Output : $output{$link}\n" if($DEBUG);
+	    if($type eq "demo"){
+		##demo Code
+		$input{$link}=int($datain*$coef_in);
+		$output{$link}=int($dataout*$coef_out);
+		print "LINK: $link, Input: $input{$link}\n" if($DEBUG);
+		print "LINK: $link, Output : $output{$link}\n" if($DEBUG);
+	    } else {
+		print "FILE_in($type) : $datain\n" if($DEBUG);
+		print "FILE_out($type) : $dataout\n" if($DEBUG);
+		$input{$link}=int(getRRD(0,$datain)*$coef_in);
+		$output{$link}=int(getRRD(0,$dataout)*$coef_out);
+		print "LINK: $link, Input: $input{$link}\n" if($DEBUG);
+		print "LINK: $link, Output : $output{$link}\n" if($DEBUG);
+	    }
 	}
     }
 }
@@ -567,20 +575,38 @@ sub read_config {
 	    }else {
 		if ( $link_node->child('targetin') && $link_node->child('targetout') ) {
 		    my $link_targetin		= $link_node->child('targetin');
-		    my $link_targetin_url	= $link_targetin->attribute('href');
+		    my $link_targetin_url	= '';
+		    if($link_targetin->attribute('href'))
+		    {
+			$targetin{$link}=$link_targetin->attribute('href');
+		    }
+		    if($link_targetin->attribute('value') && $link_target_type eq "demo")
+		    {
+			$targetin{$link}=$link_targetin->attribute('value');
+		    }
 		    if($link_targetin->attribute('coef')){
 			my $link_targetin_coef = $link_targetin->attribute('coef');
 			$targetin_coef{$link} = $link_targetin_coef;
 		    }
 		    my $link_targetout		= $link_node->child('targetout');
-		    my $link_targetout_url = $link_targetout->attribute('href');
+		    my $link_targetout_url	= '';
+		    if($link_targetout->attribute('href'))
+		    {
+			$targetout{$link}=$link_targetout->attribute('href');
+		    }
+		    if($link_targetout->attribute('value') && $link_target_type eq "demo")
+		    {
+			$targetout{$link}=$link_targetout->attribute('value');
+		    }
 		    if($link_targetout->attribute('coef')){
 			my $link_targetout_coef = $link_targetout->attribute('coef');
 			$targetout_coef{$link} = $link_targetout_coef;
 		    }
-		    $targetin{$link}=$link_targetin_url;
-		    $targetout{$link}=$link_targetout_url;
-		    print "$link_members target[$link_target_type] = $link_targetin_url && $link_targetout_url\n" if($DEBUG);
+		    if ($link_target_type eq "demo"){
+			print "$link_members target[$link_target_type] = in $targetin{$link} && out $targetout{$link}\n" if($DEBUG);
+		    }else{
+			print "$link_members target[$link_target_type] = $link_targetin_url && $link_targetout_url\n" if($DEBUG);
+		    }
 		}
 		#else{
 		#	  die("error no taget, and targetin && targetout are not set on link $link");
