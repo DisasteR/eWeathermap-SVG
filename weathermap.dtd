@@ -32,6 +32,7 @@
 	 <!ELEMENT node (position, label)>
 	 <!ATTLIST node name ID #REQUIRED>
 	 <!ELEMENT label (#PCDATA)>
+	 <!ATTLIST label fontsize CDATA #IMPLIED>
 
 	 <!ELEMENT links (link+)>
 	 <!ELEMENT link (members, target?, targetin?, targetout?, bandwidth?, bandwidthin?, bandwidthout?, width?)>

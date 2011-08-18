@@ -6,6 +6,8 @@ new features are :
  * Create simple links between nodes
  * Choose the width of links between nodes
  * Create a new line type called "demo", in order to be able to create demo graphs more easily
+ * Multiline text for labels (separate lines with \n)
+ * Font size for labels (in pixels)
 
 TODO : 
  * Nothing for the moment, feel free to ask :).

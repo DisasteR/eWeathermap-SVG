@@ -207,7 +207,7 @@ foreach(keys %xpos){
     }else{
 	$svg_element = $svg;
     }
-    &label($svg_element,$xpos{$_},$ypos{$_},$label{$_}, 3);
+    &label($svg_element,$xpos{$_},$ypos{$_},$label{$_}, 3, $fontsize{$_});
 }
 
 &annotation;
@@ -227,23 +227,49 @@ sub label{
     $ypos=shift;
     $label=shift;
     $pad=shift;
+    $strheight=shift;
 
-    my($strwidth)=8*length($label);
-    my($strheight)=16;
+    if (!$strheight) {
+	$strheight=12;
+    }
+
+    @lines=split/\\n/,$label;
+
+    $nlines=scalar(@lines);
+
+    $maxstrlength=0;
+
+    foreach (@lines) {
+	if (length($_) > $maxstrlength) {
+		$maxstrlength=length($_);
+	}
+    }
+
+    my($strwidth)=8*$maxstrlength;
+
+    $rect_y_pos=$ypos-$strheight+4-(($strheight*(2*(int($nlines/2))))/2)/2-$pad+1;
 
     $svg_element->rectangle(
 	x     => $xpos-$strwidth/2-$pad-2,
-	y     => $ypos-$strheight/2-$pad+1,
+	y     => $rect_y_pos,
 	width => ($xpos+$strwidth/2+$pad+1)-($xpos-$strwidth/2-$pad-2),
-	height => ($ypos+$strheight/2+$pad)-($ypos-$strheight/2-$pad+1),
+	height => (($ypos+$strheight-4-((($strheight*(2*(int($nlines/2))))/2)/2+$pad))-$rect_y_pos)*$nlines,
 	rx    => 0, ry     => 0,
 	style=>{'fill'=>'#ffffff','stroke'=>'#000000'}
 	);
-    $svg_element->text(
-	x=>$xpos-$strwidth/2,
-	y=>$ypos+4,
-	style=>{'font-family'=>'monospace','fill'=>'#000066'}
-        )->cdata($label);
+   
+    $fontsize="${strheight}px";
+
+    $l=0;
+    foreach (@lines) {
+	    $svg_element->text(
+		x=>$xpos-$strwidth/2,
+		y=>$rect_y_pos+$strheight+($l*$strheight+int($l/2)*4),
+		style=>{'font-family'=>'monospace','fill'=>'#000066','font-size'=>$fontsize}
+	        )->cdata($_);
+	    $l++;
+    }
+		
 }
 
 sub objects {
@@ -483,10 +509,22 @@ sub read_config {
 	    if( $node->child('url') ) {
 		$url{$node_name} = $node->child('url')->value;
 	    }
+
+	    $node_child_label=$node->child('label');
+
+            if ( $node_child_label->attribute('fontsize')){
+                $node_font_size = $node_child_label->attribute('fontsize');
+            }else{
+                #Default value
+                $node_font_size = 12;
+            }
+
+
 	    $node=$node_name;
 	    $xpos{$node}=$node_pos_x;
 	    $ypos{$node}=$node_pos_y;
 	    $label{$node}=$node_label;
+	    $fontsize{$node}=$node_font_size;
 	    print "[[1;32m$node_name[0m] {$node_pos_x,$node_pos_y} Label : $node_label\n" if($DEBUG);
 	}
     }
