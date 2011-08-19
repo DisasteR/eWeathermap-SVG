@@ -249,7 +249,6 @@ sub label{
     
     $rect_height=4+$nlines-2+$strheight*$nlines+2*$pad;
 
-    #rect_y_pos=$ypos-$strheight+4-(($strheight*(2*(int($nlines/2))))/2)/2-$pad+1;
     $rect_y_pos=$ypos-(($rect_height-(2+$nlines-1)*$pad+1)/2)-$pad+1;
 
 
@@ -269,7 +268,6 @@ sub label{
 	    $svg_element->text(
 		x=>$xpos-$strwidth/2,
 		y=>$rect_y_pos+$pad-1+$l*$strheight,
-#+$strheight+($l*$strheight+int($l/2)*4),
 		style=>{'font-family'=>'monospace','fill'=>'#000066','font-size'=>$fontsize}
 	        )->cdata($_);
 	    $l++;
