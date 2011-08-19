@@ -246,25 +246,30 @@ sub label{
     }
 
     my($strwidth)=8*$maxstrlength;
+    
+    $rect_height=4+$nlines-2+$strheight*$nlines+2*$pad;
 
-    $rect_y_pos=$ypos-$strheight+4-(($strheight*(2*(int($nlines/2))))/2)/2-$pad+1;
+    #rect_y_pos=$ypos-$strheight+4-(($strheight*(2*(int($nlines/2))))/2)/2-$pad+1;
+    $rect_y_pos=$ypos-(($rect_height-(2+$nlines-1)*$pad+1)/2)-$pad+1;
+
 
     $svg_element->rectangle(
 	x     => $xpos-$strwidth/2-$pad-2,
 	y     => $rect_y_pos,
 	width => ($xpos+$strwidth/2+$pad+1)-($xpos-$strwidth/2-$pad-2),
-	height => (($ypos+$strheight-4-((($strheight*(2*(int($nlines/2))))/2)/2+$pad))-$rect_y_pos)*$nlines,
+	height => $rect_height,
 	rx    => 0, ry     => 0,
 	style=>{'fill'=>'#ffffff','stroke'=>'#000000'}
 	);
    
     $fontsize="${strheight}px";
 
-    $l=0;
+    $l=1;
     foreach (@lines) {
 	    $svg_element->text(
 		x=>$xpos-$strwidth/2,
-		y=>$rect_y_pos+$strheight+($l*$strheight+int($l/2)*4),
+		y=>$rect_y_pos+$pad-1+$l*$strheight,
+#+$strheight+($l*$strheight+int($l/2)*4),
 		style=>{'font-family'=>'monospace','fill'=>'#000066','font-size'=>$fontsize}
 	        )->cdata($_);
 	    $l++;
