@@ -1,4 +1,4 @@
-#!/usr/bin/perl
+﻿#!/usr/bin/perl
 # Enhanced Network Weathermap-SVG (eWeathermap-SVG) - version 0.1
 # https://github.com/DisasteR/eWeathermap-SVG
 # Based on http://sourceforge.net/projects/weathermap-svg/ by David BERARD
@@ -32,182 +32,218 @@ $HEIGHT = 600;
 %optctl=();
 GetOptions(\%optctl, "config:s", "output:s", "checkconfig", "version", "help", "debug", "") || exit(1);
 
-if($optctl{"config"}) { $CONFIG = $optctl{"config"} };
+if($optctl{"config"}) {
+	$CONFIG = $optctl{"config"};
+}
 
-if($optctl{"output"}) { $OUTPUT = $optctl{"output"} };
+if($optctl{"output"}) {
+	$OUTPUT = $optctl{"output"};
+}
 
-if($optctl{"version"}) { &version; exit; }
+if($optctl{"version"}) { 
+	&version;
+	exit;
+}
 
-if($optctl{"checkconfig"}) { &checkconfig; exit; }
+if($optctl{"checkconfig"}) {
+	&checkconfig;
+	exit;
+}
 
-if($optctl{"help"}) { &usage; exit; }
+if($optctl{"help"}) {
+	&usage;
+	exit; 
+}
 
-if($optctl{"debug"}) { $DEBUG=1; }
+if($optctl{"debug"}) {
+	$DEBUG=1;
+}
 
 &read_config($CONFIG);
 
 #CREATE SVG
 my $svg= SVG->new(	width=>"100%",
-			height=>"100%",
-			id=>"weathermap_root",
-			viewBox=>"0 0 $WIDTH $HEIGHT",
-			preserveAspectRatio=>'xMinYMin'
-    );
+	height=>"100%",
+	id=>"weathermap_root",
+	viewBox=>"0 0 $WIDTH $HEIGHT",
+	preserveAspectRatio=>'xMinYMin'
+);
+
 $svg->title(id=>'document-title')->cdata('eWeathermap-SVG');
 
 &title;
 &images;
 sub getMRTG($$) {
-    my $rejex=shift;
-    my $data=shift;
-    if(($data =~ /^https?:\/\//i) || ($data =~ /^ftp:\/\//i) ) {
-	open(LOG, "$WGET $data |") or warn "$data: $!\n";
-    }else{
-	open(LOG, "$data") or warn "data file $data: $!\n";
-    }
-    while(<LOG>){
-	if(/<\!-- $rejex d (\d+) -->/){
-	    return $1;
+	my $rejex=shift;
+	my $data=shift;
+	if(($data =~ /^https?:\/\//i) || ($data =~ /^ftp:\/\//i) ) {
+		open(LOG, "$WGET $data |") or warn "$data: $!\n";
+	}else{
+		open(LOG, "$data") or warn "data file $data: $!\n";
 	}
-    }
-    return 0;
+	while(<LOG>){
+		if(/<\!-- $rejex d (\d+) -->/){
+			return $1;
+		}
+	}
+	return 0;
 }
 sub getRRD($$) {
-    my $field=shift;
-    my $data=shift;
+	my $field=shift;
+	my $data=shift;
 
-    use RRDs;
+	use RRDs;
 
-    if ( ! $DATE ) {
-	$DATE= RRDs::last "$data";
-	$DATE= $DATE-300;
-    }
-    my ($start,$step,$names,$data) = RRDs::fetch "$data","AVERAGE","--start","$DATE","--end","$DATE";
-    my $ERR=RRDs::error;
-    die "ERROR while reading $target{$link}: $ERR\n" if $ERR;
-    foreach my $line (@$data) {
-	if(@$line[$field] != null) {
-	    return @$line[$field];
+	if ( ! $DATE ) {
+		$DATE= RRDs::last "$data";
+		$DATE= $DATE-300;
 	}
-    }
-    return 0;
+	my ($start,$step,$names,$data) = RRDs::fetch "$data","AVERAGE","--start","$DATE","--end","$DATE";
+	my $ERR=RRDs::error;
+	die "ERROR while reading $target{$link}: $ERR\n" if $ERR;
+	foreach my $line (@$data) {
+		if(@$line[$field] != null) {
+			return @$line[$field];
+		}
+	}
+	return 0;
 }
 
 print "Opening log files...\n\n" if($DEBUG);
 foreach $link (keys %linkType){
-    $type = $linkType{$link};
-    if (defined($target{$link}) ) {
-	$data = $target{$link};
-	$coef=1;
-	if(defined($target_coef{$link})) {
-	    $coef=$target_coef{$link};
-	}
-	print "FILE($type): $data\n" if($DEBUG);
-	if($type eq "mrtg"){
-	    $input{$link}=int(getMRTG('cuin',$data)*$coef);
-	    $output{$link}=int(getMRTG('cuout',$data)*$coef);
-	    print "LINK: $link, Input: $input{$link}\n" if($DEBUG);
-	    print "LINK: $link, Output : $output{$link}\n" if($DEBUG);
-	}
-	if($type eq "rrd"){
-	    $input{$link}=int(getRRD(0,$data)*$coef);
-	    $output{$link}=int(getRRD(1,$data)*$coef);
-	    print "LINK: $link, Input: $input{$link}\n" if($DEBUG);
-	    print "LINK: $link, Output : $output{$link}\n" if($DEBUG);
-	}
+	$type = $linkType{$link};
+	if (defined($target{$link}) ) {
+		$data = $target{$link};
+		$coef=1;
+		if(defined($target_coef{$link})) {
+			$coef=$target_coef{$link};
+		}
+		print "FILE($type): $data\n" if($DEBUG);
+		if($type eq "mrtg"){
+			$input{$link}=int(getMRTG('cuin',$data)*$coef);
+			$output{$link}=int(getMRTG('cuout',$data)*$coef);
+			print "LINK: $link, Input: $input{$link}\n" if($DEBUG);
+			print "LINK: $link, Output : $output{$link}\n" if($DEBUG);
+		}
+		if($type eq "rrd"){
+			$input{$link}=int(getRRD(0,$data)*$coef);
+			$output{$link}=int(getRRD(1,$data)*$coef);
+			print "LINK: $link, Input: $input{$link}\n" if($DEBUG);
+			print "LINK: $link, Output : $output{$link}\n" if($DEBUG);
+		}
     } else {
-	if(defined($targetin{$link}) && defined($targetout{$link}) ) {
-	    $datain=$targetin{$link};
-	    $dataout=$targetout{$link};
-	    $coef_in=1;
-	    if(defined($targetin_coef{$link})) {
-		$coef_in=$targetin_coef{$link};
-	    }
-	    $coef_out=1;
-	    if(defined($targetout_coef{$link})) {
-		$coef_out=$targetout_coef{$link};
-	    }
-	    if($type eq "demo"){
-		##demo Code
-		$input{$link}=int($datain*$coef_in);
-		$output{$link}=int($dataout*$coef_out);
-		print "LINK: $link, Input: $input{$link}\n" if($DEBUG);
-		print "LINK: $link, Output : $output{$link}\n" if($DEBUG);
-	    } else {
-		print "FILE_in($type) : $datain\n" if($DEBUG);
-		print "FILE_out($type) : $dataout\n" if($DEBUG);
-		$input{$link}=int(getRRD(0,$datain)*$coef_in);
-		$output{$link}=int(getRRD(0,$dataout)*$coef_out);
-		print "LINK: $link, Input: $input{$link}\n" if($DEBUG);
-		print "LINK: $link, Output : $output{$link}\n" if($DEBUG);
-	    }
-	}
+		if(defined($targetin{$link}) && defined($targetout{$link}) ) {
+			$datain=$targetin{$link};
+			$dataout=$targetout{$link};
+			$coef_in=1;
+			if(defined($targetin_coef{$link})) {
+				$coef_in=$targetin_coef{$link};
+			}
+			$coef_out=1;
+			if(defined($targetout_coef{$link})) {
+				$coef_out=$targetout_coef{$link};
+			}
+			if($type eq "demo"){
+				##demo Code
+				$input{$link}=int($datain*$coef_in);
+				$output{$link}=int($dataout*$coef_out);
+				print "LINK: $link, Input: $input{$link}\n" if($DEBUG);
+				print "LINK: $link, Output : $output{$link}\n" if($DEBUG);
+			} else {
+				print "FILE_in($type) : $datain\n" if($DEBUG);
+				print "FILE_out($type) : $dataout\n" if($DEBUG);
+				$input{$link}=int(getRRD(0,$datain)*$coef_in);
+				$output{$link}=int(getRRD(0,$dataout)*$coef_out);
+				print "LINK: $link, Input: $input{$link}\n" if($DEBUG);
+				print "LINK: $link, Output : $output{$link}\n" if($DEBUG);
+			}
+		}
     }
 }
 
 print "\nCalculating rates...\n\n" if($DEBUG);
 
 foreach $link (keys %linkType){
-    my $outrate = "";
-    my $inrate = "";
+	my $outrate = "";
+	my $inrate = "";
 
-    if ( $maxbytes{$link} != "" ) {
-	$outrate=int(($output{$link}/$maxbytes{$link}+0.005)*100);
-	$inrate=int(($input{$link}/$maxbytes{$link}+0.005)*100);
-	print "SYM: $maxbytes{$link}\n" if($DEBUG);
-    } elsif ( $maxbytesin{$link} != "" && $maxbytesout{$link} != "" ) {
-	$outrate=int(($output{$link}/$maxbytesout{$link}+0.005)*100);
-	$inrate=int(($input{$link}/$maxbytesin{$link}+0.005)*100);
-	print "DOWN: $maxbytesin{$link} - UP: $maxbytesout{$link}\n" if($DEBUG);
+	if ( $maxbytes{$link} != "" ) {
+		$outrate=int(($output{$link}/$maxbytes{$link}+0.005)*100);
+		$inrate=int(($input{$link}/$maxbytes{$link}+0.005)*100);
+		print "SYM: $maxbytes{$link}\n" if($DEBUG);
+	} elsif ( $maxbytesin{$link} != "" && $maxbytesout{$link} != "" ) {
+		$outrate=int(($output{$link}/$maxbytesout{$link}+0.005)*100);
+		$inrate=int(($input{$link}/$maxbytesin{$link}+0.005)*100);
+		print "DOWN: $maxbytesin{$link} - UP: $maxbytesout{$link}\n" if($DEBUG);
     }
 
-    if($output{$link} != 0 && $outrate == 0) { $outrate=1 }
-    if($input{$link} != 0 && $inrate == 0) { $inrate=1 }
-    print "$link: outrate=$outrate%, inrate=$inrate%\n" if($DEBUG);
-    $width=$linkWidth{$link};
+	if($output{$link} != 0 && $outrate == 0) { $outrate=1 }
+	if($input{$link} != 0 && $inrate == 0) { $inrate=1 }
+	print "$link: outrate=$outrate%, inrate=$inrate%\n" if($DEBUG);
+	$width=$linkWidth{$link};
 
-    if ($url{$link}) {
-	$svg_element = $svg->anchor(
-	    -href=> $url{$link},
-	    target => 'new_window'
-	    );
-    }else{
-	$svg_element = $svg;
-    }
+	if ($url{$link}) {
+		$svg_element = $svg->anchor(
+			-href=> $url{$link},
+			target => 'new_window'
+		);
+	}else{
+		$svg_element = $svg;
+	}
 
-    &draw_arrow(
-	$xpos{$nodea{$link}},
-	$ypos{$nodea{$link}},
-	&middle($xpos{$nodea{$link}},$xpos{$nodeb{$link}}),
-	&middle($ypos{$nodea{$link}},$ypos{$nodeb{$link}}),
-	$width, 1, &select_color($outrate), &select_color_rgb($outrate),
-	$outrate,$svg_element);
-    &label($svg_element,&middle($xpos{$nodea{$link}},&middle($xpos{$nodea{$link}},$xpos{$nodeb{$link}})),
-	   &middle($ypos{$nodea{$link}},&middle($ypos{$nodea{$link}},$ypos{$nodeb{$link}})),
-	   $outrate . "%", 0) if $outrate;
-    &draw_arrow(
-	$xpos{$nodeb{$link}},
-	$ypos{$nodeb{$link}},
-	&middle($xpos{$nodea{$link}},$xpos{$nodeb{$link}}),
-	&middle($ypos{$nodea{$link}},$ypos{$nodeb{$link}}),
-	$width, 1, &select_color($inrate), &select_color_rgb($inrate),
-	$inrate,$svg_element);
-    &label($svg_element,&middle($xpos{$nodeb{$link}},&middle($xpos{$nodea{$link}},$xpos{$nodeb{$link}})),
-	   &middle($ypos{$nodeb{$link}},&middle($ypos{$nodea{$link}},$ypos{$nodeb{$link}})),
-	   $inrate . "%", 0) if $inrate;
+	&draw_arrow(
+		$xpos{$nodea{$link}},
+		$ypos{$nodea{$link}},
+		&middle($xpos{$nodea{$link}},$xpos{$nodeb{$link}}),
+		&middle($ypos{$nodea{$link}},$ypos{$nodeb{$link}}),
+		$width,
+		1,
+		&select_color($outrate),
+		&select_color_rgb($outrate),
+		$outrate,
+		$svg_element
+	);
+
+    &label(
+		$svg_element,
+		&middle($xpos{$nodea{$link}},&middle($xpos{$nodea{$link}},$xpos{$nodeb{$link}})),
+		&middle($ypos{$nodea{$link}},&middle($ypos{$nodea{$link}},$ypos{$nodeb{$link}})),
+		$outrate . "%",
+		0
+	) if $outrate;
+
+	&draw_arrow(
+		$xpos{$nodeb{$link}},
+		$ypos{$nodeb{$link}},
+		&middle($xpos{$nodea{$link}},$xpos{$nodeb{$link}}),
+		&middle($ypos{$nodea{$link}},$ypos{$nodeb{$link}}),
+		$width,
+		1,
+		&select_color($inrate),
+		&select_color_rgb($inrate),
+		$inrate,$svg_element
+	);
+
+	&label(
+		$svg_element,
+		&middle($xpos{$nodeb{$link}},&middle($xpos{$nodea{$link}},$xpos{$nodeb{$link}})),
+		&middle($ypos{$nodeb{$link}},&middle($ypos{$nodea{$link}},$ypos{$nodeb{$link}})),
+		$inrate . "%",
+		0
+	) if $inrate;
 }
 print "\n" if($DEBUG);
 
 foreach(keys %xpos){
-    if ($url{$_}) {
-	$svg_element = $svg->anchor(
-	    -href=> $url{$_},
-	    target => 'new_window'
-	    );
-    }else{
-	$svg_element = $svg;
-    }
-    &label($svg_element,$xpos{$_},$ypos{$_},$label{$_}, 3, $fontsize{$_});
+	if ($url{$_}) {
+		$svg_element = $svg->anchor(
+			-href=> $url{$_},
+			target => 'new_window'
+		);
+	}else{
+		$svg_element = $svg;
+	}
+	&label($svg_element,$xpos{$_},$ypos{$_},$label{$_}, 3, $fontsize{$_});
 }
 
 &annotation;
@@ -222,149 +258,158 @@ exit;
 
 # print labels
 sub label{
-    $svg_element=shift;
-    $xpos=shift;
-    $ypos=shift;
-    $label=shift;
-    $pad=shift;
-    $strheight=shift;
+	$svg_element=shift;
+	$xpos=shift;
+	$ypos=shift;
+	$label=shift;
+	$pad=shift;
+	$strheight=shift;
 
-    if (!$strheight) {
-	$strheight=12;
-    }
-
-    @lines=split/\\n/,$label;
-
-    $nlines=scalar(@lines);
-
-    $maxstrlength=0;
-
-    foreach (@lines) {
-	if (length($_) > $maxstrlength) {
-		$maxstrlength=length($_);
+	if (!$strheight) {
+		$strheight=12;
 	}
-    }
 
-    my($strwidth)=8*$maxstrlength;
+	@lines=split/\\n/,$label;
+
+	$nlines=scalar(@lines);
+
+	$maxstrlength=0;
+
+	foreach (@lines) {
+		if (length($_) > $maxstrlength) {
+			$maxstrlength=length($_);
+		}
+	}
+
+	my($strwidth)=8*$maxstrlength;
     
-    $rect_height=4+$nlines-2+$strheight*$nlines+2*$pad;
+	$rect_height=4+$nlines-2+$strheight*$nlines+2*$pad;
 
-    $rect_y_pos=$ypos-(($rect_height-(2+$nlines-1)*$pad+1)/2)-$pad+1;
-
+	$rect_y_pos=$ypos-(($rect_height-(2+$nlines-1)*$pad+1)/2)-$pad+1;
 
     $svg_element->rectangle(
-	x     => $xpos-$strwidth/2-$pad-2,
-	y     => $rect_y_pos,
-	width => ($xpos+$strwidth/2+$pad+1)-($xpos-$strwidth/2-$pad-2),
-	height => $rect_height,
-	rx    => 0, ry     => 0,
-	style=>{'fill'=>'#ffffff','stroke'=>'#000000'}
+		x => $xpos-$strwidth/2-$pad-2,
+		y => $rect_y_pos,
+		width => ($xpos+$strwidth/2+$pad+1)-($xpos-$strwidth/2-$pad-2),
+		height => $rect_height,
+		rx => 0,
+		ry => 0,
+		style => {'fill'=>'#ffffff','stroke'=>'#000000'}
 	);
-   
-    $fontsize="${strheight}px";
 
-    $l=1;
-    foreach (@lines) {
-	    $svg_element->text(
-		x=>$xpos-$strwidth/2,
-		y=>$rect_y_pos+$pad-1+$l*$strheight,
-		style=>{'font-family'=>'monospace','fill'=>'#000066','font-size'=>$fontsize}
-	        )->cdata($_);
-	    $l++;
-    }
-		
+	$fontsize="${strheight}px";
+
+	$l=1;
+	foreach (@lines) {
+		$svg_element->text(
+			x => $xpos-$strwidth/2,
+			y => $rect_y_pos+$pad-1+$l*$strheight,
+			style => {'font-family'=>'monospace','fill'=>'#000066','font-size'=>$fontsize}
+		)->cdata($_);
+		$l++;
+	}	
 }
 
 sub objects {
-    foreach $object (keys %object_label) {
-	my $object_label = $object_label{$object};
-	my $object_size_x = $xobjectsize{$object};
-	my $object_size_y= $yobjectsize{$object};
-	my $object_pos_x = $xobjectpos{$object};
-	my $object_pos_y = $yobjectpos{$object};
-	if ($url{$object}) {
-	    $svg_element = $svg->anchor(
-		-href=> $url{$object},
-		target => 'new_window'
+	foreach $object (keys %object_label) {
+		my $object_label = $object_label{$object};
+		my $object_size_x = $xobjectsize{$object};
+		my $object_size_y= $yobjectsize{$object};
+		my $object_pos_x = $xobjectpos{$object};
+		my $object_pos_y = $yobjectpos{$object};
+		
+		if ($url{$object}) {
+			$svg_element = $svg->anchor(
+				-href => $url{$object},
+				target => 'new_window'
+			);
+		}else{
+			$svg_element = $svg;
+		}
+		$svg_element->rectangle(
+			x => $object_pos_x,
+			y => $object_pos_y,
+			width => $object_size_x,
+			height => $object_size_y,
+			rx => 0,
+			ry => 0,
+			style => {'fill'=>'#ffffff','stroke'=>'#000000'}
 		);
-	}else{
-	    $svg_element = $svg;
+		
+		$svg_element->text(
+			x => $object_pos_x+($object_size_x - 8*length($object_label))/2,
+			y => $object_pos_y+($object_size_y/2),
+			style => {'font-family'=>'monospace','fill'=>'#660000','font-weight'=>'bold'}
+		)->cdata($object_label);
 	}
-	$svg_element->rectangle(
-	    x     => $object_pos_x,
-	    y     => $object_pos_y,
-	    width => $object_size_x,
-	    height => $object_size_y,
-	    rx    => 0, ry     => 0,
-	    style=>{'fill'=>'#ffffff','stroke'=>'#000000'}
-	    );
-	$svg_element->text(
-	    x=>$object_pos_x+($object_size_x - 8*length($object_label))/2,
-	    y=>$object_pos_y+($object_size_y/2),
-	    style=>{'font-family'=>'monospace','fill'=>'#660000','font-weight'=>'bold'}
-        )->cdata($object_label);
-    }
 }
 
 sub images {
-    foreach $image (keys %image_url) {
-	my $image_pos_x		= $ximagepos{$image};
-	my $image_pos_y		= $yimagepos{$image};
-	my $image_size_x	= $ximagesize{$image};
-	my $image_size_y	= $yimagesize{$image};
-	my $image_url		= $image_url{$image};
-	my $image_type		= $image_type{$image};
-	$svg->image( x=>$image_pos_x,
-		     y=>$image_pos_y,
-    		     width=>$image_size_x,
-		     height=>$image_size_y,
-		     '-href'=>"$image_url"
-		     );
-    }
+	foreach $image (keys %image_url) {
+		my $image_pos_x	= $ximagepos{$image};
+		my $image_pos_y	= $yimagepos{$image};
+		my $image_size_x = $ximagesize{$image};
+		my $image_size_y = $yimagesize{$image};
+		my $image_url = $image_url{$image};
+		my $image_type = $image_type{$image};
+		
+		$svg->image(
+			x => $image_pos_x,
+			y => $image_pos_y,
+			width => $image_size_x,
+			height => $image_size_y,
+			'-href' => "$image_url"
+		);
+	}
 }
 
 sub title{
-    $t=localtime(time);
-    $update_text="Last update on $t";
-    my $rect_size_x=0;
-    $title_text="$title_text - eWeathermap-SVG $VERSION";
-    if ( length($update_text) > length($title_text) ) {
-	$rect_size_x=8*length($update_text)+160;
-    }else{
-	$rect_size_x=8*length($title_text)+160;
-    }
-    $svg->rectangle(
-	x     => $title_pos_x,
-	y     => $title_pos_y,
-	width => $rect_size_x,
-	height =>16*3+10,
-	rx    => 0, ry     => 0,
-	style=>{'fill'=>'#ffffff','stroke'=>'#000000'}
+	$t=localtime(time);
+	$update_text="Last update on $t";
+	my $rect_size_x=0;
+	$title_text="$title_text - eWeathermap-SVG $VERSION";
+	if ( length($update_text) > length($title_text) ) {
+		$rect_size_x=8*length($update_text)+160;
+	}else{
+		$rect_size_x=8*length($title_text)+160;
+	}
+	$svg->rectangle(
+		x => $title_pos_x,
+		y => $title_pos_y,
+		width => $rect_size_x,
+		height => 16*3+10,
+		rx => 0,
+		ry => 0,
+		style => {'fill'=>'#ffffff','stroke'=>'#000000'}
 	);
-    $svg->text(
-	 x=>$title_pos_x+154,
-	 y=>$title_pos_y+20,
-	 style=>{'font-family'=>'monospace','fill'=>'#660000','font-weight'=>'bold'}
-         )->cdata($title_text);
-    $svg->line(
-	x1=>$title_pos_x+150,
-	y1=>$title_pos_y+30,
-	x2=>$title_pos_x+$rect_size_x,
-	y2=>$title_pos_y+30,
-	style=>{'fill'=>'#ffffff','stroke'=>'#000000'}
-    );
-    $svg->line(
-	x1=>$title_pos_x+150,
-	y1=>$title_pos_y,
-	x2=>$title_pos_x+150,
-	y2=>$title_pos_y+16*3+10,
-	style=>{'fill'=>'#ffffff','stroke'=>'#000000'}
-    );
-    $svg->text(
-	x=>$title_pos_x+154,
-	y=>$title_pos_y+50,
-	style=>{'font-family'=>'monospace','fill'=>'#000066','font-weight'=>'bold'}
-    )->cdata($update_text);
+
+	$svg->text(
+		x => $title_pos_x+154,
+		y => $title_pos_y+20,
+		style => {'font-family'=>'monospace','fill'=>'#660000','font-weight'=>'bold'}
+	)->cdata($title_text);
+
+	$svg->line(
+		x1 => $title_pos_x+150,
+		y1 => $title_pos_y+30,
+		x2 => $title_pos_x+$rect_size_x,
+		y2 => $title_pos_y+30,
+		style=>{'fill'=>'#ffffff','stroke'=>'#000000'}
+	);
+
+	$svg->line(
+		x1 => $title_pos_x+150,
+		y1=>$title_pos_y,
+		x2=>$title_pos_x+150,
+		y2=>$title_pos_y+16*3+10,
+		style=>{'fill'=>'#ffffff','stroke'=>'#000000'}
+	);
+
+	$svg->text(
+		x=>$title_pos_x+154,
+		y=>$title_pos_y+50,
+		style=>{'font-family'=>'monospace','fill'=>'#000066','font-weight'=>'bold'}
+	)->cdata($update_text);
 
     &drawLogo($title_pos_x+5,$title_pos_y+5);
 
@@ -372,538 +417,556 @@ sub title{
 
 # print annotation
 sub annotation{
-    my($title)="Traffic load";
-    $strwidth=8*length($label{$_});
-    $strheight=16;
-    foreach $comment (keys %comment_text) {
-	$svg->text(
-	    x=>$xcommentpos{$comment},
-	    y=>$ycommentpos{$comment},
-            style=>{'font-family'=>'monospace','fill'=>'#000066'}
-            )->cdata($comment_text{$comment});
-    }
+	my($title)="Traffic load";
+	$strwidth=8*length($label{$_});
+	$strheight=16;
+	foreach $comment (keys %comment_text) {
+		$svg->text(
+			x=>$xcommentpos{$comment},
+			y=>$ycommentpos{$comment},
+			style=>{'font-family'=>'monospace','fill'=>'#000066'}
+		)->cdata($comment_text{$comment});
+	}
 
-    $svg->rectangle(
-	x     => $keyxpos,
-	y     => $keyypos,
-	width => 8*length($title)+10,
-	height=> 16*($scales+1)+10,
-	rx    => 0, ry     => 0,
-	style=>{'fill'=>'#eeeeee','stroke'=>'#000000'}
+	$svg->rectangle(
+		x => $keyxpos,
+		y => $keyypos,
+		width => 8*length($title)+10,
+		height => 16*($scales+1)+10,
+		rx => 0,
+		ry => 0,
+		style => {'fill'=>'#eeeeee','stroke'=>'#000000'}
 	);
-    $svg->text(
-	x=>$keyxpos+4,
-	y=>$keyypos+20,
-	style=>{'font-family'=>'monospace','fill'=>'#000000','font-weight'=>'bold'}
+    
+	$svg->text(
+		x => $keyxpos+4,
+		y => $keyypos+20,
+		style => {'font-family'=>'monospace','fill'=>'#000000','font-weight'=>'bold'}
 	)->cdata("Traffic load");
-    my($i)=1;
-    foreach(sort {$scale_low{$a}<=>$scale_low{$b}} keys %scale_low){
-        $red=$scale_red{$_};
-        $green=$scale_green{$_};
-        $blue=$scale_blue{$_};
+    
+	my($i)=1;
+	foreach(sort {$scale_low{$a}<=>$scale_low{$b}} keys %scale_low){
+		$red=$scale_red{$_};
+		$green=$scale_green{$_};
+		$blue=$scale_blue{$_};
 
-        my $rec = $svg->rectangle(
-	    x     => $keyxpos+6,
-	    y     => $keyypos+16*$i+8,
-	    width => 16,
-	    height=> 16,
- 	    rx    => 0, ry     => 0,
-	    style=>{'fill'=>"rgb($red,$green,$blue)",'stroke'=>'#000000'});
-        $svg->text(
-	    x=>$keyxpos+6+20,
-	    y=>$keyypos+16*$i+20,
-	    style=>{'font-family'=>'monospace','fill'=>'#000000'}
-            )->cdata("$scale_low{$_}-$scale_high{$_}%");
-        $i++
-    }
+		my $rec = $svg->rectangle(
+			x => $keyxpos+6,
+			y => $keyypos+16*$i+8,
+			width => 16,
+			height=> 16,
+			rx => 0,
+			ry => 0,
+			style=>{'fill'=>"rgb($red,$green,$blue)",'stroke'=>'#000000'}
+		);
+
+		$svg->text(
+			x => $keyxpos+6+20,
+			y => $keyypos+16*$i+20,
+			style => {'font-family'=>'monospace','fill'=>'#000000'}
+		)->cdata("$scale_low{$_}-$scale_high{$_}%");
+        
+		$i++;
+	}
 }
 
 sub select_color {
-    my($rate)=($_[0]>1000) ? 999:$_[0];
-    if($rate=="0"){return($white)}
-    foreach(sort {$scale_high{$a}<=>$scale_high{$b}} keys %scale_high){
-	if($scale_low{$_}<=$rate && $rate<=$scale_high{$_}){
-	    return($color{$_});
+	my($rate)=($_[0]>1000) ? 999:$_[0];
+	if($rate=="0"){
+		return($white);
 	}
-    }
+	foreach(sort {$scale_high{$a}<=>$scale_high{$b}} keys %scale_high){
+		if($scale_low{$_}<=$rate && $rate<=$scale_high{$_}){
+			return($color{$_});
+		}
+	}
 }
+
 sub select_color_rgb {
-    my($rate)=($_[0]>1000) ? 999:$_[0];
-    if($rate=="0"){return("rgb(255,255,255)")}
-    foreach(sort {$scale_high{$a}<=>$scale_high{$b}} keys %scale_high){
-	if($scale_low{$_}<=$rate && $rate<=$scale_high{$_}){
-	    return("rgb(".$scale_red{$_}.",".$scale_green{$_}.",".$scale_blue{$_}.")");
+	my($rate)=($_[0]>1000) ? 999:$_[0];
+	if($rate=="0"){
+		return("rgb(255,255,255)");
 	}
-    }
+	foreach(sort {$scale_high{$a}<=>$scale_high{$b}} keys %scale_high){
+		if($scale_low{$_}<=$rate && $rate<=$scale_high{$_}){
+			return("rgb(".$scale_red{$_}.",".$scale_green{$_}.",".$scale_blue{$_}.")");
+		}
+	}
 }
-
-
 
 sub read_config {
-    my($config)=shift;
-    my($node,$link);
+	my($config)=shift;
+	my($node,$link);
 
-    print "\nReading xml configuration file ($config)...\n\n" if($DEBUG);
+	print "\nReading xml configuration file ($config)...\n\n" if($DEBUG);
 
+	my $parser = XML::Parser->new(ErrorContext => 2, Style => "Tree");
+	my $xml = XML::SimpleObject->new( $parser->parsefile($config));
 
-    my $parser = XML::Parser->new(ErrorContext => 2, Style => "Tree");
-    my $xml = XML::SimpleObject->new( $parser->parsefile($config));
+	print "=================== SCALES =================\n" if($DEBUG);
+	$scales=0;
+	foreach my $scale ($xml->child('weathermap')->child('scales')->children('scale')) {
+		my $scale_low = $scale->child('low')->value;
+		my $scale_high = $scale->child('high')->value;
+		my $scale_color = $scale->child('color');
+		my $scale_red = $scale_color->attribute('red');
+		my $scale_green = $scale_color->attribute('green');
+		my $scale_blue = $scale_color->attribute('blue');
 
-    print "=================== SCALES =================\n" if($DEBUG);
-    $scales=0;
-    foreach my $scale ($xml->child('weathermap')->child('scales')->children('scale')) {
-	my $scale_low           = $scale->child('low')->value;
-	my $scale_high          = $scale->child('high')->value;
-	my $scale_color         = $scale->child('color');
-	my $scale_red           = $scale_color->attribute('red');
-	my $scale_green         = $scale_color->attribute('green');
-	my $scale_blue          = $scale_color->attribute('blue');
+		$scale_low{"$scale_low:$scale_high"}=$scale_low;
+		$scale_high{"$scale_low:$scale_high"}=$scale_high;
+		$scale_red{"$scale_low:$scale_high"}=$scale_red;
+		$scale_green{"$scale_low:$scale_high"}=$scale_green;
+		$scale_blue{"$scale_low:$scale_high"}=$scale_blue;
+		$scales++;
 
-	$scale_low{"$scale_low:$scale_high"}=$scale_low;
-	$scale_high{"$scale_low:$scale_high"}=$scale_high;
-	$scale_red{"$scale_low:$scale_high"}=$scale_red;
-	$scale_green{"$scale_low:$scale_high"}=$scale_green;
-	$scale_blue{"$scale_low:$scale_high"}=$scale_blue;
-	$scales++;
+		print "Low : $scale_low \tHigh: $scale_high \t($scale_red,$scale_green,$scale_blue)\n" if($DEBUG);
+	}
 
-	print "Low : $scale_low \tHigh: $scale_high \t($scale_red,$scale_green,$scale_blue)\n" if($DEBUG);
-    }
-    print "=================== GLOBAL =================\n" if($DEBUG);
-    if($xml->child('weathermap')->child('global')->child('background')) {
-	my $background_node     = $xml->child('weathermap')->child('global')->child('background');
-	my $background_type     = $background_node->attribute('type');
-	my $background_url      = $background_node->attribute('href');
-	$background=$background_url;
-	$background_format=$background_type;
-	print "Background[[1;32m$background_type[0m] = [1;31m$background_url[0m\n" if($DEBUG);
-    }
-    if($xml->child('weathermap')->child('global')->child('scales_position')) {
-		   my $scale_pos           = $xml->child('weathermap')->child('global')->child('scales_position');
-		   my $scale_pos_x         = $scale_pos->attribute('x');
-		   my $scale_pos_y         = $scale_pos->attribute('y');
-		   $keyxpos=$scale_pos_x;
-		   $keyypos=$scale_pos_y;
-		   print "Scales position = [1;31m{$scale_pos_x,$scale_pos_y}[0m\n" if($DEBUG);
-    }
-    if($xml->child('weathermap')->child('global')->child('size')) {
-	my $size_node     		 = $xml->child('weathermap')->child('global')->child('size');
-	$WIDTH						 = $size_node->attribute('x');
-	$HEIGHT						 = $size_node->attribute('y');
-	print "Size {[1;32m$WIDTH,$HEIGHT[0m}\n" if($DEBUG);
-    }
-    if($xml->child('weathermap')->child('global')->child('title')) {
-	$title               	 = $xml->child('weathermap')->child('global')->child('title');
-	$title_text          	 = $title->value;
-	$title_pos_x         	 = $title->attribute('x');
-	$title_pos_y         	 = $title->attribute('y');
-	print "Title {[1;32m$title_pos_x,$title_pos_y[0m} = [1;31m$title_text[0m\n" if($DEBUG);
+	print "=================== GLOBAL =================\n" if($DEBUG);
+    
+	if($xml->child('weathermap')->child('global')->child('background')) {
+		my $background_node = $xml->child('weathermap')->child('global')->child('background');
+		my $background_type = $background_node->attribute('type');
+		my $background_url = $background_node->attribute('href');
+		$background=$background_url;
+		$background_format=$background_type;
+
+		print "Background[[1;32m$background_type[0m] = [1;31m$background_url[0m\n" if($DEBUG);
+	}
+
+	if($xml->child('weathermap')->child('global')->child('scales_position')) {
+		my $scale_pos = $xml->child('weathermap')->child('global')->child('scales_position');
+		my $scale_pos_x = $scale_pos->attribute('x');
+		my $scale_pos_y = $scale_pos->attribute('y');
+		$keyxpos=$scale_pos_x;
+		$keyypos=$scale_pos_y;
+		
+		print "Scales position = [1;31m{$scale_pos_x,$scale_pos_y}[0m\n" if($DEBUG);
     }
 
+	if($xml->child('weathermap')->child('global')->child('size')) {
+		my $size_node = $xml->child('weathermap')->child('global')->child('size');
+		$WIDTH = $size_node->attribute('x');
+		$HEIGHT = $size_node->attribute('y');
+
+		print "Size {[1;32m$WIDTH,$HEIGHT[0m}\n" if($DEBUG);
+	}
+    
+	if($xml->child('weathermap')->child('global')->child('title')) {
+		$title = $xml->child('weathermap')->child('global')->child('title');
+		$title_text = $title->value;
+		$title_pos_x = $title->attribute('x');
+		$title_pos_y = $title->attribute('y');
+
+		print "Title {[1;32m$title_pos_x,$title_pos_y[0m} = [1;31m$title_text[0m\n" if($DEBUG);
+	}
 
     print "==================== NODES =================\n" if($DEBUG);
-    if ( $xml->child('weathermap')->child('nodes')->children('node') ) {
-	foreach my $node ($xml->child('weathermap')->child('nodes')->children('node')) {
-	    my $node_name 		= $node->attribute('name');
-	    my $node_label 		= $node->child('label')->value;
-	    my $node_pos 		= $node->child('position');
-	    my $node_pos_x		= $node_pos->attribute('x');
-	    my $node_pos_y		= $node_pos->attribute('y');
+	if ( $xml->child('weathermap')->child('nodes')->children('node') ) {
+		foreach my $node ($xml->child('weathermap')->child('nodes')->children('node')) {
+			my $node_name = $node->attribute('name');
+			my $node_label = $node->child('label')->value;
+			my $node_pos = $node->child('position');
+			my $node_pos_x = $node_pos->attribute('x');
+			my $node_pos_y = $node_pos->attribute('y');
 
-	    if( $node->child('url') ) {
-		$url{$node_name} = $node->child('url')->value;
-	    }
+			if( $node->child('url') ) {
+				$url{$node_name} = $node->child('url')->value;
+			}
 
-	    $node_child_label=$node->child('label');
+			$node_child_label=$node->child('label');
 
-            if ( $node_child_label->attribute('fontsize')){
-                $node_font_size = $node_child_label->attribute('fontsize');
-            }else{
-                #Default value
-                $node_font_size = 12;
-            }
+			if ( $node_child_label->attribute('fontsize')){
+				$node_font_size = $node_child_label->attribute('fontsize');
+			}else{
+				#Default value
+				$node_font_size = 12;
+			}
 
-
-	    $node=$node_name;
-	    $xpos{$node}=$node_pos_x;
-	    $ypos{$node}=$node_pos_y;
-	    $label{$node}=$node_label;
-	    $fontsize{$node}=$node_font_size;
-	    print "[[1;32m$node_name[0m] {$node_pos_x,$node_pos_y} Label : $node_label\n" if($DEBUG);
-	}
-    }
-
-    print "==================== LINKS =================\n" if($DEBUG);
-    if ( $xml->child('weathermap')->child('links')->children('link') ) {
-	foreach my $link_node ($xml->child('weathermap')->child('links')->children('link')) {
-	    my $link_name		= $link_node->attribute('name');
-	    my $link_target_type	= $link_node->attribute('type');
-
-	    my $link_bandwidth	= "";
-	    my $link_mb_bandwidth	= "";
-	    my $link_bandwidthin	= "";
-	    my $link_mb_bandwidthin	= "";
-	    my $link_bandwidthout	= "";
-	    my $link_mb_bandwidthout= "";
-
-	    my $link_members="";
-
-	    $link=$link_name;
-
-	    $maxbytes{$link} = "";
-	    $maxbytesin{$link} = "";
-	    $maxbytesout{$link} = "";
-
-	    if ( $link_node->child('bandwidth') ) {
-		$link_bandwidth	= $link_node->child('bandwidth')->value;
-		$link_mb_bandwidth	= $link_bandwidth/1000;
-
-		$bandwidth{$link}=$link_bandwidth;
-		$maxbytes{$link}=$bandwidth{$link}*1024/8;
-	    } elsif ( $link_node->child('bandwidthin') && $link_node->child('bandwidthout') ) {
-		$link_bandwidthin		= $link_node->child('bandwidthin')->value;
-				     $link_mb_bandwidthin	= $link_bandwidthin/1000;
-
-		$bandwidthin{$link}=$link_bandwidthin;
-		$maxbytesin{$link}=$bandwidthin{$link}*1024/8;
-
-		$link_bandwidthout		= $link_node->child('bandwidthout')->value;
-		$link_mb_bandwidthout	= $link_bandwidthout/1000;
-
-		$bandwidthout{$link}=$link_bandwidthout;
-		$maxbytesout{$link}=$bandwidthout{$link}*1024/8;
-	    }
-
-	    if ( $link_node->child('width') ) {
-		$link_width = $link_node->child('width')->value;
-	    }else{
-		#Default value
-		$link_width = 7;
-	    }
-
-	    $linkWidth{$link}=$link_width;
-
-	    $linkType{$link}=$link_target_type;
-	    if( $link_node->child('url') ) {
-		$url{$link} = $link_node->child('url')->value;
-	    }
-
-	    my $id_member=0;
-	    foreach my $member ($link_node->child('members')->children('member')) {
-		$link_members.=$member->value." ";
-		$nodea{$link}=$member->value if($id_member == 0 );
-		$nodeb{$link}=$member->value if($id_member == 1 );
-		$id_member++;
-	    }
-
-	    if ( $link_node->child('bandwidth') ) {
-		print "[[1;32m$link_name[0m] ( [31m$link_mb_bandwidth Mbit/s[0m ) $link_members " if($DEBUG);
-	    } elsif ( $link_node->child('bandwidthin') && $link_node->child('bandwidthout') ) {
-		print "[[1;32m$link_name[0m] ( [31m $link_mb_bandwidthin Mbit/s / $link_mb_bandwidthout Mbit/s [0m ) $link_members " if($DEBUG);
-	    } else {
-		print "[[1;32m$link_name[0m] $link_members " if($DEBUG);
-	    }
-
-	    if ( $link_node->child('target') ) {
-		my $link_target		= $link_node->child('target');
-		my $link_target_url	= $link_target->attribute('href');
-		if($link_target->attribute('coef')){
-		    my $link_target_coef = $link_target->attribute('coef');
-		    $target_coef{$link}=$link_target_coef;
+			$node=$node_name;
+			$xpos{$node}=$node_pos_x;
+			$ypos{$node}=$node_pos_y;
+			$label{$node}=$node_label;
+			$fontsize{$node}=$node_font_size;
+			print "[[1;32m$node_name[0m] {$node_pos_x,$node_pos_y} Label : $node_label\n" if($DEBUG);
 		}
-		$target{$link}=$link_target_url;
-
-		print "$link_members target[$link_target_type] = $link_target_url\n" if($DEBUG);
-	    }else {
-		if ( $link_node->child('targetin') && $link_node->child('targetout') ) {
-		    my $link_targetin		= $link_node->child('targetin');
-		    my $link_targetin_url	= '';
-		    if($link_targetin->attribute('href'))
-		    {
-			$targetin{$link}=$link_targetin->attribute('href');
-		    }
-		    if($link_targetin->attribute('value') && $link_target_type eq "demo")
-		    {
-			$targetin{$link}=$link_targetin->attribute('value');
-		    }
-		    if($link_targetin->attribute('coef')){
-			my $link_targetin_coef = $link_targetin->attribute('coef');
-			$targetin_coef{$link} = $link_targetin_coef;
-		    }
-		    my $link_targetout		= $link_node->child('targetout');
-		    my $link_targetout_url	= '';
-		    if($link_targetout->attribute('href'))
-		    {
-			$targetout{$link}=$link_targetout->attribute('href');
-		    }
-		    if($link_targetout->attribute('value') && $link_target_type eq "demo")
-		    {
-			$targetout{$link}=$link_targetout->attribute('value');
-		    }
-		    if($link_targetout->attribute('coef')){
-			my $link_targetout_coef = $link_targetout->attribute('coef');
-			$targetout_coef{$link} = $link_targetout_coef;
-		    }
-		    if ($link_target_type eq "demo"){
-			print "$link_members target[$link_target_type] = in $targetin{$link} && out $targetout{$link}\n" if($DEBUG);
-		    }else{
-			print "$link_members target[$link_target_type] = $link_targetin_url && $link_targetout_url\n" if($DEBUG);
-		    }
-		}
-		#else{
-		#	  die("error no taget, and targetin && targetout are not set on link $link");
-		#}
-	    }
-	    print "\n" if($DEBUG);
 	}
-    }
+
+	print "==================== LINKS =================\n" if($DEBUG);
+	if ( $xml->child('weathermap')->child('links')->children('link') ) {
+		foreach my $link_node ($xml->child('weathermap')->child('links')->children('link')) {
+			my $link_name = $link_node->attribute('name');
+			my $link_target_type = $link_node->attribute('type');
+
+			my $link_bandwidth	= "";
+			my $link_mb_bandwidth	= "";
+			my $link_bandwidthin	= "";
+			my $link_mb_bandwidthin	= "";
+			my $link_bandwidthout	= "";
+			my $link_mb_bandwidthout= "";
+
+			my $link_members="";
+
+			$link=$link_name;
+
+			$maxbytes{$link} = "";
+			$maxbytesin{$link} = "";
+			$maxbytesout{$link} = "";
+
+			if ( $link_node->child('bandwidth') ) {
+				$link_bandwidth	= $link_node->child('bandwidth')->value;
+				$link_mb_bandwidth = $link_bandwidth/1000;
+
+				$bandwidth{$link} = $link_bandwidth;
+				$maxbytes{$link} = $bandwidth{$link}*1024/8;
+			} elsif ( $link_node->child('bandwidthin') && $link_node->child('bandwidthout') ) {
+				$link_bandwidthin = $link_node->child('bandwidthin')->value;
+				$link_mb_bandwidthin = $link_bandwidthin/1000;
+
+				$bandwidthin{$link} = $link_bandwidthin;
+				$maxbytesin{$link} = $bandwidthin{$link}*1024/8;
+
+				$link_bandwidthout = $link_node->child('bandwidthout')->value;
+				$link_mb_bandwidthout = $link_bandwidthout/1000;
+
+				$bandwidthout{$link} = $link_bandwidthout;
+				$maxbytesout{$link} = $bandwidthout{$link}*1024/8;
+			}
+
+			if ( $link_node->child('width') ) {
+				$link_width = $link_node->child('width')->value;
+			}else{
+				#Default value
+				$link_width = 7;
+			}
+
+			$linkWidth{$link}=$link_width;
+
+			$linkType{$link}=$link_target_type;
+			if( $link_node->child('url') ) {
+				$url{$link} = $link_node->child('url')->value;
+			}
+
+			my $id_member=0;
+			foreach my $member ($link_node->child('members')->children('member')) {
+				$link_members.=$member->value." ";
+				$nodea{$link}=$member->value if($id_member == 0 );
+				$nodeb{$link}=$member->value if($id_member == 1 );
+				$id_member++;
+			}
+
+			if ( $link_node->child('bandwidth') ) {
+				print "[[1;32m$link_name[0m] ( [31m$link_mb_bandwidth Mbit/s[0m ) $link_members " if($DEBUG);
+			} elsif ( $link_node->child('bandwidthin') && $link_node->child('bandwidthout') ) {
+				print "[[1;32m$link_name[0m] ( [31m $link_mb_bandwidthin Mbit/s / $link_mb_bandwidthout Mbit/s [0m ) $link_members " if($DEBUG);
+			} else {
+				print "[[1;32m$link_name[0m] $link_members " if($DEBUG);
+			}
+
+			if ( $link_node->child('target') ) {
+				my $link_target	= $link_node->child('target');
+				my $link_target_url	= $link_target->attribute('href');
+				if($link_target->attribute('coef')){
+					my $link_target_coef = $link_target->attribute('coef');
+					$target_coef{$link} = $link_target_coef;
+				}
+				$target{$link}=$link_target_url;
+
+				print "$link_members target[$link_target_type] = $link_target_url\n" if($DEBUG);
+			}else {
+				if ($link_node->child('targetin') && $link_node->child('targetout') ) {
+					my $link_targetin = $link_node->child('targetin');
+					my $link_targetin_url = '';
+					if ($link_targetin->attribute('href')) {
+						$targetin{$link} = $link_targetin->attribute('href');
+					}
+					if($link_targetin->attribute('value') && $link_target_type eq "demo") {
+						$targetin{$link} = $link_targetin->attribute('value');
+					}
+					if($link_targetin->attribute('coef')){
+						my $link_targetin_coef = $link_targetin->attribute('coef');
+						$targetin_coef{$link} = $link_targetin_coef;
+					}
+					my $link_targetout = $link_node->child('targetout');
+					my $link_targetout_url = '';
+					if ($link_targetout->attribute('href')) {
+						$targetout{$link} = $link_targetout->attribute('href');
+					}
+					if ($link_targetout->attribute('value') && $link_target_type eq "demo") {
+						$targetout{$link} = $link_targetout->attribute('value');
+					}
+					if($link_targetout->attribute('coef')){
+						my $link_targetout_coef = $link_targetout->attribute('coef');
+						$targetout_coef{$link} = $link_targetout_coef;
+					}
+					if ($link_target_type eq "demo"){
+						print "$link_members target[$link_target_type] = in $targetin{$link} && out $targetout{$link}\n" if($DEBUG);
+					}else{
+						print "$link_members target[$link_target_type] = $link_targetin_url && $link_targetout_url\n" if($DEBUG);
+					}
+				}
+			}
+			print "\n" if($DEBUG);
+		}
+	}
 
     print "=================== COMMENTS ===============\n" if($DEBUG);
-    if ($xml->child('weathermap')->child('comments')->children('comment')){
-	foreach my $comment_node ($xml->child('weathermap')->child('comments')->children('comment')) {
-	    my $comment_text	= $comment_node->child('text')->value;
-	    my $comment_name	= $comment_node->attribute('name');
-	    my $comment_pos	= $comment_node->child('position');
-	    my $comment_pos_x	= $comment_pos->attribute('x');
-	    my $comment_pos_y	= $comment_pos->attribute('y');
+	if ($xml->child('weathermap')->child('comments')->children('comment')){
+		foreach my $comment_node ($xml->child('weathermap')->child('comments')->children('comment')) {
+			my $comment_text = $comment_node->child('text')->value;
+			my $comment_name = $comment_node->attribute('name');
+			my $comment_pos	= $comment_node->child('position');
+			my $comment_pos_x = $comment_pos->attribute('x');
+			my $comment_pos_y = $comment_pos->attribute('y');
 
-	    $comment			= $comment_name;
-	    $comment_text{$comment}	= $comment_text;
-	    $xcommentpos{$comment}	= $comment_pos_x;
-	    $ycommentpos{$comment}	= $comment_pos_y;
+			$comment = $comment_name;
+			$comment_text{$comment}	= $comment_text;
+			$xcommentpos{$comment} = $comment_pos_x;
+			$ycommentpos{$comment} = $comment_pos_y;
 
-	    print "Comment at {$comment_pos_x,$comment_pos_y} = $comment_text\n" if($DEBUG);
-	}
+			print "Comment at {$comment_pos_x,$comment_pos_y} = $comment_text\n" if($DEBUG);
+		}
     }
-    print "=================== OBJECTS ===============\n" if($DEBUG);
-    if ( $xml->child('weathermap')->child('objects')->children('object') ) {
-	foreach my $object_node ($xml->child('weathermap')->child('objects')->children('object')) {
-	    my $object_label	= $object_node->child('label')->value;
-	    my $object_name	= $object_node->attribute('name');
-	    my $object_pos	= $object_node->child('position');
-	    my $object_pos_x	= $object_pos->attribute('x');
-	      my $object_pos_y	= $object_pos->attribute('y');
-	    my $object_size	= $object_node->child('size');
-	    my $object_size_x	= $object_size->attribute('x');
-	    my $object_size_y	= $object_size->attribute('y');
 
-	    $object			= $object_name;
-	    $object_label{$object}	= $object_label;
-	    $xobjectpos{$object}	= $object_pos_x;
-	    $yobjectpos{$object}	= $object_pos_y;
-	    $xobjectsize{$object}	= $object_size_x;
-	    $yobjectsize{$object}	= $object_size_y;
+	print "=================== OBJECTS ===============\n" if($DEBUG);
+	if ( $xml->child('weathermap')->child('objects')->children('object') ) {
+		foreach my $object_node ($xml->child('weathermap')->child('objects')->children('object')) {
+			my $object_label = $object_node->child('label')->value;
+			my $object_name	= $object_node->attribute('name');
+			my $object_pos = $object_node->child('position');
+			my $object_pos_x = $object_pos->attribute('x');
+			my $object_pos_y = $object_pos->attribute('y');
+			my $object_size	= $object_node->child('size');
+			my $object_size_x = $object_size->attribute('x');
+			my $object_size_y = $object_size->attribute('y');
 
-	    if( $object_node->child('url') ) {
-		$url{$object}=$object_node->child('url')->value;
-	    }
+			$object = $object_name;
+			$object_label{$object} = $object_label;
+			$xobjectpos{$object} = $object_pos_x;
+			$yobjectpos{$object} = $object_pos_y;
+			$xobjectsize{$object} = $object_size_x;
+			$yobjectsize{$object} = $object_size_y;
 
-	    print "Object at {$object_pos_x,$object_pos_y} {$object_size_x,$object_size_y}= $object_label\n" if($DEBUG);
+			if( $object_node->child('url') ) {
+				$url{$object}=$object_node->child('url')->value;
+			}
+
+			print "Object at {$object_pos_x,$object_pos_y} {$object_size_x,$object_size_y}= $object_label\n" if($DEBUG);
+		}
 	}
-    }
-    print "=================== IMAGES ===============\n" if($DEBUG);
-    if ( $xml->child('weathermap')->child('images')->children('image') ) {
+
+	print "=================== IMAGES ===============\n" if($DEBUG);
+	if ( $xml->child('weathermap')->child('images')->children('image') ) {
 	foreach my $image_node ($xml->child('weathermap')->child('images')->children('image')) {
-	    my $image_name	= $image_node->attribute('name');
-	    my $image_url	= $image_node->attribute('href');
-	    my $image_type	= $image_node->attribute('type');
-	    my $image_pos	= $image_node->child('position');
-	    my $image_size	= $image_node->child('size');
-	    my $image_pos_x	= $image_pos->attribute('x');
-	    my $image_pos_y	= $image_pos->attribute('y');
-	    my $image_size_x	= $image_size->attribute('x');
-	    my $image_size_y	= $image_size->attribute('y');
+			my $image_name = $image_node->attribute('name');
+			my $image_url = $image_node->attribute('href');
+			my $image_type = $image_node->attribute('type');
+			my $image_pos = $image_node->child('position');
+			my $image_size = $image_node->child('size');
+			my $image_pos_x	= $image_pos->attribute('x');
+			my $image_pos_y	= $image_pos->attribute('y');
+			my $image_size_x = $image_size->attribute('x');
+			my $image_size_y = $image_size->attribute('y');
 
-	    $image		= $image_name;
-	    $image_url{$image}	= $image_url;
-	    $image_type{$image}	= $image_type;
-	    $ximagepos{$image}	= $image_pos_x;
-	    $yimagepos{$image}	= $image_pos_y;
-	    $ximagesize{$image}	= $image_size_x;
-	    $yimagesize{$image}	= $image_size_y;
+			$image = $image_name;
+			$image_url{$image} = $image_url;
+			$image_type{$image}	= $image_type;
+			$ximagepos{$image} = $image_pos_x;
+			$yimagepos{$image} = $image_pos_y;
+			$ximagesize{$image}	= $image_size_x;
+			$yimagesize{$image}	= $image_size_y;
 
-	    print "Image at {$image_pos_x,$image_pos_y} = $image_url\n" if($DEBUG);
+			print "Image at {$image_pos_x,$image_pos_y} = $image_url\n" if($DEBUG);
+		}
 	}
-    }
 }
 
-
 sub middle{
-    return int( $_[0] + ($_[1]-$_[0])/2 )
+	return int( $_[0] + ($_[1]-$_[0])/2 )
 }
 
 sub dist{
-    return int( sqrt( $_[0]*$_[0] + $_[1]*$_[1] ) )
+	return int( sqrt( $_[0]*$_[0] + $_[1]*$_[1] ) )
 }
 
 sub newx{
-    my($a,$b,$x,$y)=@_;
-    return int( cos( atan2($y,$x) + atan2($b,$a) ) * sqrt( $x*$x + $y*$y ) );
+	my($a,$b,$x,$y)=@_;
+	return int( cos( atan2($y,$x) + atan2($b,$a) ) * sqrt( $x*$x + $y*$y ) );
 }
 
 sub newy{
-    my($a,$b,$x,$y)=@_;
-    return int( sin( atan2($y,$x) + atan2($b,$a) ) * sqrt( $x*$x + $y*$y ) );
+	my($a,$b,$x,$y)=@_;
+	return int( sin( atan2($y,$x) + atan2($b,$a) ) * sqrt( $x*$x + $y*$y ) );
 }
 
-
-
 sub draw_arrow {
-    $x1=shift;
-    $y1=shift;
-    $x2=shift;
-    $y2=shift;
-    $w=shift;
-    $solid=shift;
-    $color=shift;
-    $rgb=shift;
-    $overquota=shift;
-    $svg_root=shift;
+	$x1=shift;
+	$y1=shift;
+	$x2=shift;
+	$y2=shift;
+	$w=shift;
+	$solid=shift;
+	$color=shift;
+	$rgb=shift;
+	$overquota=shift;
+	$svg_root=shift;
 
-    $xv = [$x1 + &newx($x2-$x1, $y2-$y1, 0, $w),
-	   $x2 + &newx($x2-$x1, $y2-$y1, -4*$w, $w),
-	   $x2 + &newx($x2-$x1, $y2-$y1, -4*$w, 2*$w),
-	   $x2,
-	   $x2 + &newx($x2-$x1, $y2-$y1, -4*$w, -2*$w),
-	   $x2 + &newx($x2-$x1, $y2-$y1, -4*$w, -$w),
-	   $x1 + &newx($x2-$x1, $y2-$y1, 0, -$w)
+	$xv = [
+		$x1 + &newx($x2-$x1, $y2-$y1, 0, $w),
+		$x2 + &newx($x2-$x1, $y2-$y1, -4*$w, $w),
+		$x2 + &newx($x2-$x1, $y2-$y1, -4*$w, 2*$w),
+		$x2,
+		$x2 + &newx($x2-$x1, $y2-$y1, -4*$w, -2*$w),
+		$x2 + &newx($x2-$x1, $y2-$y1, -4*$w, -$w),
+		$x1 + &newx($x2-$x1, $y2-$y1, 0, -$w)
 	];
-    $yv = [$y1 + &newy($x2-$x1, $y2-$y1, 0, $w),
-	   $y2 + &newy($x2-$x1, $y2-$y1, -4*$w, $w),
-	   $y2 + &newy($x2-$x1, $y2-$y1, -4*$w, 2*$w),
-	   $y2,
-	   $y2 + &newy($x2-$x1, $y2-$y1, -4*$w, -2*$w),
-	   $y2 + &newy($x2-$x1, $y2-$y1, -4*$w, -$w),
-	   $y1 + &newy($x2-$x1, $y2-$y1, 0, -$w)
+    
+	$yv = [
+		$y1 + &newy($x2-$x1, $y2-$y1, 0, $w),
+		$y2 + &newy($x2-$x1, $y2-$y1, -4*$w, $w),
+		$y2 + &newy($x2-$x1, $y2-$y1, -4*$w, 2*$w),
+		$y2,
+		$y2 + &newy($x2-$x1, $y2-$y1, -4*$w, -2*$w),
+		$y2 + &newy($x2-$x1, $y2-$y1, -4*$w, -$w),
+		$y1 + &newy($x2-$x1, $y2-$y1, 0, -$w)
 	];
 
-    my $points1 = $svg_root->get_path(
-	x=>$xv, y=>$yv,
-        -type=>'polygon'
-    	);
+	my $points1 = $svg_root->get_path(
+		x=>$xv, y=>$yv,
+		-type=>'polygon'
+	);
 	my $polyg = $svg_root->polygon(
-	    %$points1,
-	    'fill'=>"$rgb",
-	    'stroke'=>($overquota > 100)?'#FF0000':'#000000',
-	    'stroke-width'=>($overquota > 100)?'3':'1',
-	    );
+		%$points1,
+		'fill'=>"$rgb",
+		'stroke'=>($overquota > 100)?'#FF0000':'#000000',
+		'stroke-width'=>($overquota > 100)?'3':'1',
+	);
 }
 
 sub drawLogo() {
-	 my $x = shift;
-	 my $y = shift;
+	my $x = shift;
+	my $y = shift;
 
-	 $x=$x+15;
+	$x=$x+15;
 
-	 my $link1=$svg->anchor(
-	     -href=> 'https://github.com/DisasteR/eWeathermap-SVG',
-	     target => 'new_window'
-	     );
+	my $link1=$svg->anchor(
+		-href=> 'https://github.com/DisasteR/eWeathermap-SVG',
+		target => 'new_window'
+	);
 
-	 #left part of the W
-	 my $xv = [0+$x, 30+$x, 70+$x, 60+$x, 30+$x,  10+$x];
-	 my $yv = [0+$y, 30+$y, 0+$y,  0+$y,  25+$y,  0+$y];
+	#left part of the W
+	my $xv = [0+$x, 30+$x, 70+$x, 60+$x, 30+$x,  10+$x];
+	my $yv = [0+$y, 30+$y, 0+$y,  0+$y,  25+$y,  0+$y];
 
-	 my $points2 = $svg->get_path(
-	     x=>$xv, y=>$yv,
-             -type=>'polygon'
-    	     );
-	 $link1->polygon(
-        		%$points2,
-		  	style=>{'fill'=>'#ff0000','stroke'=>'#000000'});
+	my $points2 = $svg->get_path(
+		x=>$xv,
+		y=>$yv,
+		-type=>'polygon'
+	);
+	$link1->polygon(
+		%$points2,
+		style=>{'fill'=>'#ff0000','stroke'=>'#000000'}
+	);
     
-    #right part of the W
-    $xv = [40+$x, 70+$x, 110+$x, 100+$x, 70+$x,  50+$x];
-    $yv = [0+$y, 30+$y, 0+$y,  0+$y,  25+$y,  0+$y];
+	#right part of the W
+	$xv = [40+$x, 70+$x, 110+$x, 100+$x, 70+$x,  50+$x];
+	$yv = [0+$y, 30+$y, 0+$y,  0+$y,  25+$y,  0+$y];
 
-    my $points3 = $svg->get_path(
-        x=>$xv, y=>$yv,
-        -type=>'polygon'
-        );
-        $link1->polygon(
-    	%$points3,
-    	style=>{'fill'=>'#00ff00','stroke'=>'#000000'}
-    	);
-
-    #circles on side of the arrow
-    $link1->circle(cx=>35+$x, cy=>5+$y, r=>5);
-    $link1->circle(cx=>75+$x, cy=>5+$y, r=>5);
-
-    #pink arrow
-    $xv = [40+$x, 55+$x, 55+$x, 73+$x,55+$x,  55+$x, 40+$x];
-    $yv = [8+$y,  8+$y,  10+$y, 5+$y, 0+$y,  2+$y,  2+$y];
-
-    my $points1 = $svg->get_path(
-	x=>$xv, y=>$yv,
-	-type=>'polygon'
+	my $points3 = $svg->get_path(
+		x=>$xv, y=>$yv,
+		-type=>'polygon'
 	);
-    $link1->polygon(
-    	%$points1,
-	style=>{'fill'=>'#ff00ff','stroke'=>'#000000'}
+	$link1->polygon(
+		%$points3,
+		style=>{'fill'=>'#00ff00','stroke'=>'#000000'}
 	);
 
-    #"e"
-    $xv = [0+$x];
-    $yv = [30+$y];
+	#circles on side of the arrow
+	$link1->circle(cx=>35+$x, cy=>5+$y, r=>5);
+	$link1->circle(cx=>75+$x, cy=>5+$y, r=>5);
 
-    my $text_e = $svg->text(
-        x=>$xv, y=>$yv,
-        style=>{'font-family'=>'monospace','fill'=>'#0000DD','font-style'=>'italic'},
-        "font-size"=>"25"
-        )->cdata("e");
+	#pink arrow
+	$xv = [40+$x, 55+$x, 55+$x, 73+$x,55+$x,  55+$x, 40+$x];
+	$yv = [8+$y,  8+$y,  10+$y, 5+$y, 0+$y,  2+$y,  2+$y];
+
+	my $points1 = $svg->get_path(
+		x=>$xv,
+		y=>$yv,
+		-type=>'polygon'
+	);
+
+	$link1->polygon(
+		%$points1,
+		style=>{'fill'=>'#ff00ff','stroke'=>'#000000'}
+	);
+
+	#"e"
+	$xv = [0+$x];
+	$yv = [30+$y];
+
+	my $text_e = $svg->text(
+		x=>$xv,
+		y=>$yv,
+		style=>{'font-family'=>'monospace','fill'=>'#0000DD','font-style'=>'italic'},
+		"font-size"=>"25"
+	)->cdata("e");
     
-    #"SVG"
-    $xv = [85+$x];
-    $yv = [30+$y];
+	#"SVG"
+	$xv = [85+$x];
+	$yv = [30+$y];
+	my $text_svg = $svg->text(
+		x=>$xv,
+		y=>$yv,
+		style=>{'font-family'=>'monospace','fill'=>'#0000DD','font-style'=>'italic'},
+		"font-size"=>"15"
+	)->cdata("SVG");
 
-    my $text_svg = $svg->text(
-        x=>$xv, y=>$yv,
-        style=>{'font-family'=>'monospace','fill'=>'#0000DD','font-style'=>'italic'},
-        "font-size"=>"15"
-        )->cdata("SVG");
-
-    #black line under the logo
-    $xv = [-15+$x, 15+110+$x, 15+110+$x, -15+$x];
-    $yv = [35+$y,  35+$y,  38+$y, 38+$y];
-
-    my $points4 = $svg->get_path(
-        x=>$xv, y=>$yv,
-        -type=>'polygon'
-    	);
-    $link1->polygon(
-    	%$points4,
-	style=>{'fill'=>'#000000','stroke'=>'#000000'}
+	#black line under the logo
+	$xv = [-15+$x, 15+110+$x, 15+110+$x, -15+$x];
+	$yv = [35+$y,  35+$y,  38+$y, 38+$y];
+	my $points4 = $svg->get_path(
+		x=>$xv,
+		y=>$yv,
+		-type=>'polygon'
 	);
-    $link1->text(
-	x=>-5+$x,
-	y=>50+$y,
-	style=>{'font-family'=>'monospace','fill'=>'#000000','font-weight'=>'bold'}
+    
+	$link1->polygon(
+		%$points4,
+		style=>{'fill'=>'#000000','stroke'=>'#000000'}
+	);
+    
+	$link1->text(
+		x=>-5+$x,
+		y=>50+$y,
+		style=>{'font-family'=>'monospace','fill'=>'#000000','font-weight'=>'bold'}
 	)->cdata("eWeathermap-SVG");
 }
 
 sub checkconfig {
-    my $check=`xmllint --valid --noout $CONFIG 2>&1`;
-    if ( $check eq "" ){
-	print "OK\n";
-    }else{
-	print "ERROR: \n$check\n";
-    }
+	my $check=`xmllint --valid --noout $CONFIG 2>&1`;
+	if ( $check eq "" ){
+		print "OK\n";
+	}else{
+		print "ERROR: \n$check\n";
+	}
 }
 
 sub version {
-    print "eWearthermap-SVG v$VERSION - https://github.com/DisasteR/eWeathermap-SVG\n";
+	print "eWearthermap-SVG v$VERSION - https://github.com/DisasteR/eWeathermap-SVG\n";
 }
 
 sub usage {
-    print <<EOM;
-    eWeathermap-SVG v$VERSION - https://github.com/DisasteR/eWeathermap-SVG
-      Usage: $0 [OPTION]...
-
-      -c, --config=FILE  configuration file (default $CONFIG)
-      -o, --output=FILE  output image file default (default $OUTPUT)
-      -v, --version      print version
-      -h, --help         print this text
-      --checkconfig      check config file syntax
-      -d, --debug        enable debug output
+	print <<EOM;
+	eWeathermap-SVG v$VERSION - https://github.com/DisasteR/eWeathermap-SVG
+		Usage: $0 [OPTION]...
+		
+		-c, --config=FILE	configuration file (default $CONFIG)
+		-o, --output=FILE	output image file default (default $OUTPUT)
+		-v, --version		print version
+		-h, --help			print this text
+		--checkconfig		check config file syntax
+		-d, --debug			enable debug output
 
 EOM
 }
