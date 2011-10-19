@@ -1,4 +1,4 @@
-#!/usr/bin/perl
+#!/usr/bin/env perl
 # Enhanced Network Weathermap-SVG (eWeathermap-SVG) - version 0.1
 # https://github.com/DisasteR/eWeathermap-SVG
 # Based on http://sourceforge.net/projects/weathermap-svg/ by David BERARD
